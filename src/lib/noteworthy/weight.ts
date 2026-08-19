@@ -53,16 +53,16 @@ export function setWeight(
   const currentSum = current.reduce((s, v) => s + v, 0);
 
   // Proportional allocation with floors, then deterministic remainder fix.
-  let allocated: number[] = others.map((_, i) =>
+  const allocated: number[] = others.map((_, i) =>
     currentSum > 0
-      ? Math.max(MIN_WEIGHT, Math.floor((current[i] / currentSum) * remaining))
+      ? Math.max(MIN_WEIGHT, Math.floor(((current[i] ?? 0) / currentSum) * remaining))
       : Math.max(MIN_WEIGHT, Math.floor(remaining / others.length)),
   );
 
   let diff = remaining - allocated.reduce((s, v) => s + v, 0);
   // Distribute leftover (or claw back) deterministically, largest-first.
   const order = others
-    .map((id, i) => ({ i, w: current[i], id }))
+    .map((id, i) => ({ i, w: current[i] ?? 0, id }))
     .sort((a, b) => b.w - a.w || (a.id < b.id ? -1 : 1))
     .map((o) => o.i);
 
@@ -71,12 +71,13 @@ export function setWeight(
     let moved = false;
     for (const i of order) {
       if (diff === 0) break;
+      const value = allocated[i] ?? MIN_WEIGHT;
       if (diff > 0) {
-        allocated[i] += 1;
+        allocated[i] = value + 1;
         diff -= 1;
         moved = true;
-      } else if (allocated[i] > MIN_WEIGHT) {
-        allocated[i] -= 1;
+      } else if (value > MIN_WEIGHT) {
+        allocated[i] = value - 1;
         diff += 1;
         moved = true;
       }
@@ -88,8 +89,9 @@ export function setWeight(
   const next = { ...facets };
   next[targetId] = { ...facets[targetId], weight: target + (diff !== 0 ? diff : 0) };
   others.forEach((id, i) => {
-    next[id] = { ...facets[id], weight: allocated[i] };
+    next[id] = { ...facets[id], weight: allocated[i] ?? MIN_WEIGHT };
   });
+
 
   return next;
 }
