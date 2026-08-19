@@ -4,28 +4,12 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/*
- * Design system definition.
- *
- * The @theme inline block maps CSS custom properties to Tailwind utility
- * classes (e.g. --color-primary -> bg-primary, text-primary).
- *
- * The :root and .dark blocks define the actual color values using oklch.
- * All colors MUST use oklch format.
- *
- * To add a new semantic color:
- * 1. Add the variable to :root (light value) and .dark (dark value)
- * 2. Register it in @theme inline as --color-<name>: var(--<name>)
- */
-
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -45,91 +29,39 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-ring-offset-background: var(--background);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+  --color-void: var(--void);
+  --color-haze: var(--haze);
+  --font-display: "Chakra Petch", "SF Pro Display", system-ui, sans-serif;
+  --font-sans: "Rajdhani", "SF Pro Text", system-ui, sans-serif;
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
+  --radius: 0.75rem;
+  --void: oklch(0.08 0.02 265);
+  --background: oklch(0.09 0.025 268);
+  --foreground: oklch(0.96 0.01 250);
+  --haze: oklch(0.22 0.05 268);
+  --card: oklch(0.14 0.035 268);
+  --card-foreground: oklch(0.96 0.01 250);
+  --popover: oklch(0.12 0.03 268);
+  --popover-foreground: oklch(0.96 0.01 250);
+  --primary: oklch(0.82 0.16 205);
+  --primary-foreground: oklch(0.12 0.03 268);
+  --secondary: oklch(0.24 0.05 280);
+  --secondary-foreground: oklch(0.95 0.01 250);
+  --muted: oklch(0.2 0.03 268);
+  --muted-foreground: oklch(0.68 0.03 258);
+  --accent: oklch(0.7 0.2 310);
+  --accent-foreground: oklch(0.98 0.01 250);
+  --destructive: oklch(0.62 0.24 20);
+  --destructive-foreground: oklch(0.98 0.01 250);
+  --border: oklch(0.32 0.05 268 / 55%);
+  --input: oklch(0.3 0.05 268 / 60%);
+  --ring: oklch(0.75 0.16 205);
 }
 
 .dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.208 0.042 265.755);
-  --sidebar-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.279 0.041 260.031);
-  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
+  color-scheme: dark;
 }
 
 @layer base {
@@ -137,8 +69,607 @@
     border-color: var(--color-border);
   }
 
+  html,
   body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
   }
+
+  body {
+    background-color: var(--color-void);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* ============================================================
+   FIELD BACKGROUND
+   ============================================================ */
+.nw-deepspace {
+  background:
+    radial-gradient(120% 70% at 50% 42%, oklch(0.18 0.07 285 / 0.55), transparent 62%),
+    radial-gradient(70% 40% at 12% 8%, oklch(0.22 0.11 330 / 0.3), transparent 70%),
+    radial-gradient(60% 40% at 88% 90%, oklch(0.2 0.1 210 / 0.3), transparent 70%),
+    linear-gradient(180deg, oklch(0.07 0.02 268), oklch(0.05 0.015 275));
+}
+
+.nw-field-effect {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: calc(var(--field-intensity, 0.5));
+}
+
+.fx-gridscan::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background-image:
+    linear-gradient(oklch(0.8 0.14 205 / 0.14) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.8 0.14 205 / 0.1) 1px, transparent 1px);
+  background-size: 46px 46px;
+  transform: perspective(600px) rotateX(62deg);
+  mask-image: radial-gradient(70% 60% at 50% 55%, #000, transparent 78%);
+  animation: nw-grid 18s linear infinite;
+}
+@keyframes nw-grid {
+  to {
+    background-position: 0 46px;
+  }
+}
+
+.fx-constellation::before,
+.fx-constellation::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1.4px 1.4px at 12% 22%, oklch(0.95 0.05 210 / 0.9), transparent),
+    radial-gradient(1.2px 1.2px at 78% 14%, oklch(0.9 0.1 320 / 0.8), transparent),
+    radial-gradient(1.6px 1.6px at 34% 72%, oklch(0.95 0.05 190 / 0.8), transparent),
+    radial-gradient(1.2px 1.2px at 62% 58%, oklch(0.9 0.08 280 / 0.7), transparent),
+    radial-gradient(1.4px 1.4px at 90% 78%, oklch(0.95 0.06 160 / 0.7), transparent),
+    radial-gradient(1.1px 1.1px at 22% 90%, oklch(0.92 0.07 300 / 0.7), transparent);
+  animation: nw-drift 44s ease-in-out infinite alternate;
+}
+.fx-constellation::after {
+  animation-duration: 66s;
+  animation-direction: alternate-reverse;
+  opacity: 0.6;
+}
+@keyframes nw-drift {
+  to {
+    transform: translate3d(14px, -12px, 0) scale(1.04);
+  }
+}
+
+.fx-conduits::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      oklch(0.75 0.16 195 / 0.16) 48%,
+      transparent 52%
+    ),
+    linear-gradient(0deg, transparent 0%, oklch(0.7 0.2 315 / 0.12) 49%, transparent 53%);
+  background-size: 220% 100%, 100% 240%;
+  animation: nw-conduit 26s ease-in-out infinite alternate;
+}
+@keyframes nw-conduit {
+  to {
+    background-position:
+      100% 0,
+      0 100%;
+  }
+}
+
+.fx-spectrogram::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 30%;
+  background: repeating-linear-gradient(
+    90deg,
+    oklch(0.7 0.18 200 / 0.22) 0 3px,
+    transparent 3px 12px
+  );
+  mask-image: linear-gradient(0deg, #000, transparent);
+  animation: nw-spectro 6s ease-in-out infinite alternate;
+}
+@keyframes nw-spectro {
+  from {
+    transform: scaleY(0.55);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+.fx-nebula::before {
+  content: "";
+  position: absolute;
+  inset: -25%;
+  background:
+    radial-gradient(35% 28% at 30% 35%, oklch(0.45 0.18 320 / 0.3), transparent 70%),
+    radial-gradient(30% 25% at 72% 62%, oklch(0.45 0.16 200 / 0.28), transparent 72%);
+  filter: blur(18px);
+  animation: nw-neb 60s ease-in-out infinite alternate;
+}
+@keyframes nw-neb {
+  to {
+    transform: translate3d(-4%, 3%, 0) scale(1.1);
+  }
+}
+
+/* ============================================================
+   FACET SURFACE
+   ============================================================ */
+.nw-facet {
+  position: relative;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  background:
+    linear-gradient(155deg, var(--body-a), var(--body-b)) padding-box,
+    linear-gradient(135deg, var(--per-a), var(--per-b)) border-box;
+  box-shadow:
+    0 18px 34px -18px oklch(0 0 0 / 0.9),
+    0 2px 8px -4px oklch(0 0 0 / 0.7),
+    inset 0 1px 0 oklch(1 0 0 / 0.09),
+    0 0 calc(10px + var(--glow, 0.5) * 26px)
+      color-mix(in oklab, var(--per-a) calc(var(--glow, 0.5) * 42%), transparent);
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    transform 900ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 700ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 600ms ease,
+    opacity 600ms ease;
+  will-change: transform;
+}
+
+.nw-facet::after {
+  /* top-edge specular sheen */
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    168deg,
+    oklch(1 0 0 / 0.1) 0%,
+    transparent 34%,
+    transparent 76%,
+    color-mix(in oklab, var(--per-b) 16%, transparent) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.nw-perimeter {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  --spd: calc(9s - var(--speed, 0.5) * 6s);
+}
+
+/* --- perimeter effects --- */
+.pfx-prismatic::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  border: 1.5px solid transparent;
+  background: linear-gradient(120deg, var(--per-a), var(--per-b), var(--per-a)) border-box;
+  mask:
+    linear-gradient(#000 0 0) padding-box exclude,
+    linear-gradient(#000 0 0);
+  -webkit-mask:
+    linear-gradient(#000 0 0) padding-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  filter: blur(1.2px);
+  animation: nw-bleed var(--spd) ease-in-out infinite alternate;
+}
+@keyframes nw-bleed {
+  from {
+    opacity: 0.25;
+  }
+  to {
+    opacity: 0.95;
+  }
+}
+
+.pfx-marquee::before,
+.pfx-lasers::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0 72%,
+    var(--per-a) 84%,
+    var(--per-b) 92%,
+    transparent 100%
+  );
+  animation: nw-spin var(--spd) linear infinite;
+  mask: radial-gradient(farthest-side, transparent 62%, #000 74%);
+}
+.pfx-lasers::before {
+  animation-duration: calc(var(--spd) * 0.5);
+}
+@keyframes nw-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.pfx-nodes::before,
+.pfx-nodes::after {
+  content: "";
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 99px;
+  background: var(--per-a);
+  box-shadow: 0 0 10px var(--per-a);
+  top: 4px;
+  left: 4px;
+  animation: nw-node var(--spd) ease-in-out infinite;
+}
+.pfx-nodes::after {
+  top: auto;
+  left: auto;
+  right: 4px;
+  bottom: 4px;
+  background: var(--per-b);
+  box-shadow: 0 0 10px var(--per-b);
+  animation-delay: calc(var(--spd) / 2);
+}
+@keyframes nw-node {
+  0%,
+  82%,
+  100% {
+    opacity: 0.15;
+  }
+  88% {
+    opacity: 1;
+  }
+}
+
+.pfx-glitch::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border-top: 1.5px solid var(--per-a);
+  border-bottom: 1.5px solid var(--per-b);
+  animation: nw-glitch calc(var(--spd) * 0.8) steps(1, end) infinite;
+}
+@keyframes nw-glitch {
+  0%,
+  70%,
+  100% {
+    opacity: 0.2;
+    transform: translateX(0);
+  }
+  74% {
+    opacity: 1;
+    transform: translateX(2px);
+  }
+  78% {
+    opacity: 0.4;
+    transform: translateX(-2px);
+  }
+  82% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.pfx-aura::before,
+.pfx-breathe::before,
+.pfx-pulse::before,
+.pfx-shockwave::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow:
+    0 0 16px color-mix(in oklab, var(--per-a) 55%, transparent),
+    inset 0 0 12px color-mix(in oklab, var(--per-b) 35%, transparent);
+  animation: nw-breathe var(--spd) ease-in-out infinite alternate;
+}
+.pfx-pulse::before {
+  animation-duration: calc(var(--spd) * 0.45);
+}
+.pfx-shockwave::before {
+  animation: nw-shock calc(var(--spd) * 1.1) cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+@keyframes nw-breathe {
+  from {
+    opacity: 0.25;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes nw-shock {
+  0% {
+    opacity: 0.15;
+    transform: scale(0.985);
+  }
+  55% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.15;
+    transform: scale(0.985);
+  }
+}
+
+.pfx-datastream::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: repeating-linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--per-a) 70%, transparent) 0 6px,
+    transparent 6px 16px
+  );
+  height: 2px;
+  top: auto;
+  bottom: 0;
+  animation: nw-stream var(--spd) linear infinite;
+}
+@keyframes nw-stream {
+  to {
+    background-position: 64px 0;
+  }
+}
+
+.pfx-glint::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    115deg,
+    transparent 40%,
+    oklch(1 0 0 / 0.5) 48%,
+    color-mix(in oklab, var(--per-b) 70%, transparent) 52%,
+    transparent 60%
+  );
+  transform: translateX(-120%);
+  animation: nw-glint calc(var(--spd) * 1.4) ease-in-out infinite;
+}
+@keyframes nw-glint {
+  0%,
+  70% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+.pfx-burn::before,
+.pfx-embers::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 -10px 18px -10px var(--per-a);
+  animation: nw-burn calc(var(--spd) * 0.6) ease-in-out infinite alternate;
+}
+@keyframes nw-burn {
+  from {
+    opacity: 0.3;
+    filter: hue-rotate(-8deg);
+  }
+  to {
+    opacity: 1;
+    filter: hue-rotate(8deg);
+  }
+}
+
+.pfx-electric::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid var(--per-a);
+  opacity: 0.2;
+  animation: nw-electric calc(var(--spd) * 0.35) steps(2, end) infinite;
+}
+@keyframes nw-electric {
+  0%,
+  60%,
+  100% {
+    opacity: 0.15;
+  }
+  70% {
+    opacity: 0.9;
+  }
+  80% {
+    opacity: 0.3;
+  }
+}
+
+.pfx-strobe::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1.5px var(--per-b);
+  animation: nw-strobe calc(var(--spd) * 0.5) steps(1, end) infinite;
+}
+@keyframes nw-strobe {
+  0%,
+  49% {
+    opacity: 0.1;
+  }
+  50%,
+  100% {
+    opacity: 0.85;
+  }
+}
+
+.pfx-rotate::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1.2px var(--per-a);
+  animation: nw-hue calc(var(--spd) * 2.4) linear infinite;
+}
+@keyframes nw-hue {
+  to {
+    filter: hue-rotate(360deg);
+  }
+}
+
+/* --- ambient float --- */
+.nw-float {
+  animation: nw-floatk calc(14s - var(--amb, 0.45) * 7s) ease-in-out infinite alternate;
+}
+@keyframes nw-floatk {
+  from {
+    transform: translate3d(0, calc(var(--amb, 0.45) * -3px), 0);
+  }
+  to {
+    transform: translate3d(0, calc(var(--amb, 0.45) * 3px), 0);
+  }
+}
+
+/* --- selection choreography --- */
+.nw-recede {
+  filter: blur(3px) saturate(0.7) brightness(0.55);
+  transform: scale(0.94);
+  opacity: 0.55;
+}
+
+.nw-stage {
+  perspective: 1400px;
+  perspective-origin: 50% 45%;
+}
+
+.nw-spinner {
+  transform-style: preserve-3d;
+  animation: nw-540 1500ms cubic-bezier(0.62, 0.02, 0.34, 1) forwards;
+}
+@keyframes nw-540 {
+  from {
+    transform: rotateY(0deg) scale(0.55);
+  }
+  to {
+    transform: rotateY(540deg) scale(1);
+  }
+}
+
+.nw-spinner-flip {
+  transform-style: preserve-3d;
+  animation: nw-180 900ms cubic-bezier(0.62, 0.02, 0.34, 1) forwards;
+}
+@keyframes nw-180 {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(180deg);
+  }
+}
+
+.nw-face {
+  backface-visibility: hidden;
+}
+
+.nw-sparkflash {
+  animation: nw-spark 420ms ease-out 1;
+}
+@keyframes nw-spark {
+  0% {
+    box-shadow: 0 0 0 0 oklch(1 0 0 / 0.9);
+    opacity: 1;
+  }
+  100% {
+    box-shadow: 0 0 0 26px oklch(1 0 0 / 0);
+    opacity: 0;
+  }
+}
+
+.nw-scrim {
+  animation: nw-fadein 420ms ease-out both;
+}
+@keyframes nw-fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* --- reduced motion --- */
+.nw-reduced .nw-float,
+.nw-reduced .nw-perimeter::before,
+.nw-reduced .nw-perimeter::after,
+.nw-reduced .nw-field-effect::before,
+.nw-reduced .nw-field-effect::after {
+  animation: none !important;
+}
+.nw-reduced .nw-spinner {
+  animation: nw-reduced-enter 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.nw-reduced .nw-spinner-flip {
+  animation: nw-reduced-enter 300ms ease-out forwards;
+}
+@keyframes nw-reduced-enter {
+  from {
+    transform: scale(0.9);
+    opacity: 0.2;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nw-float {
+    animation: none !important;
+  }
+}
+
+/* --- utility --- */
+.nw-scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+.nw-input {
+  width: 100%;
+  background: oklch(0.14 0.03 268 / 0.75);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 9px;
+  font-size: 13px;
+  color: var(--foreground);
+}
+.nw-input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+.nw-label {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
 }
