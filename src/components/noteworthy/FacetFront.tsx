@@ -1,0 +1,81 @@
+import type { Facet } from "@/lib/noteworthy/types";
+import { cn } from "@/lib/utils";
+
+type Scale = "xl" | "lg" | "md" | "sm" | "bar";
+
+const TYPE: Record<Scale, { title: string; tag: string; icon: string }> = {
+  xl: { title: "text-[15px]", tag: "text-[10px]", icon: "text-[28px]" },
+  lg: { title: "text-[12px]", tag: "text-[9px]", icon: "text-[19px]" },
+  md: { title: "text-[10.5px]", tag: "text-[8px]", icon: "text-[15px]" },
+  sm: { title: "text-[9px]", tag: "text-[7px]", icon: "text-[12px]" },
+  bar: { title: "text-[10px]", tag: "text-[9px]", icon: "text-[12px]" },
+};
+
+/** Clean front face: title, tagline, mark, concise status. No codes, no percentages. */
+export function FacetFront({ facet, scale }: { facet: Facet; scale: Scale }) {
+  const t = TYPE[scale];
+  const due = facet.due ? new Date(facet.due) : null;
+  const openTasks = facet.tasks.filter((x) => !x.done).length;
+
+  if (scale === "bar") {
+    return (
+      <div className="relative z-[3] flex h-full min-w-0 items-center gap-2 px-3">
+        <span className={cn(t.icon, "shrink-0 opacity-80")} aria-hidden>
+          {facet.icon}
+        </span>
+        <span className={cn(t.title, "truncate font-semibold tracking-[0.16em] uppercase")}>
+          {facet.title}
+        </span>
+        <span className={cn(t.tag, "ml-auto shrink-0 truncate text-muted-foreground")}>
+          {facet.tagline}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative z-[3] flex h-full min-w-0 flex-col justify-between p-1.5">
+      <div className="flex min-w-0 items-start gap-1">
+        <span
+          className={cn(t.icon, "shrink-0 leading-none opacity-90")}
+          style={{ filter: "drop-shadow(0 0 6px var(--per-a))" }}
+          aria-hidden
+        >
+          {facet.icon}
+        </span>
+        {facet.complete && (
+          <span className="ml-auto shrink-0 text-[8px] tracking-widest text-primary uppercase">
+            done
+          </span>
+        )}
+      </div>
+
+      <div className="min-w-0">
+        <h3
+          className={cn(
+            t.title,
+            "truncate font-display leading-tight font-semibold tracking-wide",
+            facet.complete && "line-through opacity-60",
+          )}
+        >
+          {facet.title}
+        </h3>
+        {scale !== "sm" && (
+          <p className={cn(t.tag, "truncate text-muted-foreground")}>{facet.tagline}</p>
+        )}
+      </div>
+
+      {scale !== "sm" && (
+        <div className={cn("flex min-w-0 items-center gap-1.5 text-[8px] text-muted-foreground")}>
+          {openTasks > 0 && <span className="shrink-0">{openTasks} open</span>}
+          {due && (
+            <span className="truncate">
+              {due.toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+            </span>
+          )}
+          {facet.locked && <span className="ml-auto shrink-0 opacity-70">◼</span>}
+        </div>
+      )}
+    </div>
+  );
+}
