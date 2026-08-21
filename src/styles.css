@@ -549,42 +549,28 @@
   }
 }
 
-/* --- selection choreography --- */
+/* --- selection choreography (single transform system) --- */
+:root {
+  --nw-safe-top: env(safe-area-inset-top, 0px);
+  --nw-safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* GPU-cheap recede: no per-tile blur. */
 .nw-recede {
-  filter: blur(3px) saturate(0.7) brightness(0.55);
-  transform: scale(0.94);
-  opacity: 0.55;
+  transform: scale(0.955);
+  opacity: 0.42;
+  transition:
+    opacity 300ms ease-out,
+    transform 300ms ease-out;
+}
+.nw-source-hidden {
+  opacity: 0;
 }
 
+/* Fixed, never-transformed stage. Owns perspective + scrim only. */
 .nw-stage {
-  perspective: 1400px;
-  perspective-origin: 50% 45%;
-}
-
-.nw-spinner {
-  transform-style: preserve-3d;
-  animation: nw-540 1500ms cubic-bezier(0.62, 0.02, 0.34, 1) forwards;
-}
-@keyframes nw-540 {
-  from {
-    transform: rotateY(0deg) scale(0.55);
-  }
-  to {
-    transform: rotateY(540deg) scale(1);
-  }
-}
-
-.nw-spinner-flip {
-  transform-style: preserve-3d;
-  animation: nw-180 900ms cubic-bezier(0.62, 0.02, 0.34, 1) forwards;
-}
-@keyframes nw-180 {
-  from {
-    transform: rotateY(0deg);
-  }
-  to {
-    transform: rotateY(180deg);
-  }
+  perspective: 1600px;
+  perspective-origin: 50% 50%;
 }
 
 .nw-face {
@@ -625,19 +611,16 @@
 .nw-reduced .nw-field-effect::after {
   animation: none !important;
 }
-.nw-reduced .nw-spinner {
-  animation: nw-reduced-enter 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+/* Reduced motion keeps the carrier trip (meaningful) but never spins the object. */
+.nw-reduced [data-testid="nw-face-information"],
+.nw-reduced [data-testid="nw-face-third"] {
+  animation: nw-face-fade 220ms ease-out both;
 }
-.nw-reduced .nw-spinner-flip {
-  animation: nw-reduced-enter 300ms ease-out forwards;
-}
-@keyframes nw-reduced-enter {
+@keyframes nw-face-fade {
   from {
-    transform: scale(0.9);
-    opacity: 0.2;
+    opacity: 0;
   }
   to {
-    transform: scale(1);
     opacity: 1;
   }
 }
