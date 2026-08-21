@@ -156,12 +156,13 @@ function Field() {
 
       {selected && (
         <FacetOverlay
-          key={selected}
-          facet={f[selected]}
-          positionLabel={POSITION_NAMES[selected]}
+          key={selected.id}
+          facet={f[selected.id]}
+          positionLabel={POSITION_NAMES[selected.id]}
           settings={state.settings}
-          onPatch={(patch) => updateFacet(selected, patch)}
-          onWeight={(tenths) => setWeight(selected, tenths)}
+          sourceRect={selected.rect}
+          onPatch={(patch) => updateFacet(selected.id, patch)}
+          onWeight={(tenths) => setWeight(selected.id, tenths)}
           onSettings={updateSettings}
           onClose={() => setSelected(null)}
           onReset={() => {
