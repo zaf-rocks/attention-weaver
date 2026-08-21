@@ -611,19 +611,16 @@
 .nw-reduced .nw-field-effect::after {
   animation: none !important;
 }
-.nw-reduced .nw-spinner {
-  animation: nw-reduced-enter 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+/* Reduced motion keeps the carrier trip (meaningful) but never spins the object. */
+.nw-reduced [data-testid="nw-face-information"],
+.nw-reduced [data-testid="nw-face-third"] {
+  animation: nw-face-fade 220ms ease-out both;
 }
-.nw-reduced .nw-spinner-flip {
-  animation: nw-reduced-enter 300ms ease-out forwards;
-}
-@keyframes nw-reduced-enter {
+@keyframes nw-face-fade {
   from {
-    transform: scale(0.9);
-    opacity: 0.2;
+    opacity: 0;
   }
   to {
-    transform: scale(1);
     opacity: 1;
   }
 }
