@@ -6,6 +6,7 @@ import { useNoteworthy } from "@/lib/noteworthy/store";
 import { FacetSurface } from "@/components/noteworthy/FacetSurface";
 import { FacetFront } from "@/components/noteworthy/FacetFront";
 import { FacetOverlay } from "@/components/noteworthy/FacetOverlay";
+import { rectOf, type Rect } from "@/lib/noteworthy/transform";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
