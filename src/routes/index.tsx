@@ -39,13 +39,13 @@ const heightPct = (w: number, max: number) => 58 + 42 * Math.pow(w / max, 0.7);
 
 function Field() {
   const { state, updateFacet, touchFacet, setWeight, updateSettings, reset } = useNoteworthy();
-  const [selected, setSelected] = useState<SlotId | null>(null);
+  const [selected, setSelected] = useState<{ id: SlotId; rect: Rect } | null>(null);
   const f = state.facets;
   const amb = state.settings.ambientMotion;
 
-  const open = (id: SlotId) => {
+  const open = (id: SlotId, el: HTMLElement) => {
     touchFacet(id);
-    setSelected(id);
+    setSelected({ id, rect: rectOf(el) });
   };
 
   const band = (ids: SlotId[]) => {
@@ -62,11 +62,13 @@ function Field() {
 
   const Tile = ({ id, style, scale }: { id: SlotId; style?: React.CSSProperties; scale?: any }) => (
     <button
-      onClick={() => open(id)}
+      onClick={(e) => open(id, e.currentTarget)}
+      data-testid={`nw-tile-${id}`}
       aria-label={`${f[id].title} — ${POSITION_NAMES[id]}`}
       className={cn(
         "group relative block min-w-0 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
-        selected && selected !== id && "nw-recede",
+        selected && selected.id !== id && "nw-recede",
+        selected && selected.id === id && "nw-source-hidden",
       )}
       style={style}
     >
