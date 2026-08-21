@@ -118,6 +118,11 @@ export function FacetOverlay({
 
   const faceStyle = (rotate: number) => ({
     ...facetVars(facet, 0),
+    // Explicit absolute positioning: .nw-facet's own `position: relative`
+    // outranks Tailwind's layered utilities, which would let the face grow
+    // past the carrier and push the footer/× below the viewport.
+    position: "absolute" as const,
+    inset: 0,
     transform: reduced ? undefined : `rotateY(${rotate}deg)`,
     backfaceVisibility: "hidden" as const,
   });
