@@ -18,11 +18,11 @@ function migrate(raw: unknown): UtilityState {
     clips: clips
       .filter((c) => c && typeof c.id === "string")
       .map((c) => ({
-        tags: [],
-        pinned: false,
-        lastUsedAt: null,
-        reuseIntervalDays: null,
         ...c,
+        tags: Array.isArray(c.tags) ? c.tags : [],
+        pinned: Boolean(c.pinned),
+        lastUsedAt: c.lastUsedAt ?? null,
+        reuseIntervalDays: c.reuseIntervalDays ?? null,
         tabId: tabIds.has(c.tabId) ? c.tabId : tabs[0]!.id,
       })),
     activeTabId: tabIds.has(p.activeTabId ?? "") ? p.activeTabId! : tabs[0]!.id,
