@@ -6,6 +6,12 @@ import { useNoteworthy } from "@/lib/noteworthy/store";
 import { FacetSurface } from "@/components/noteworthy/FacetSurface";
 import { FacetFront } from "@/components/noteworthy/FacetFront";
 import { FacetOverlay } from "@/components/noteworthy/FacetOverlay";
+import { RepositoryBar } from "@/components/noteworthy/RepositoryBar";
+import { RepositoryWorkspace } from "@/components/noteworthy/RepositoryWorkspace";
+import { CaptureBar } from "@/components/noteworthy/CaptureBar";
+import { CaptureWorkspace } from "@/components/noteworthy/CaptureWorkspace";
+import { UtilityStage } from "@/components/noteworthy/UtilityStage";
+import { useUtility } from "@/lib/noteworthy/utility-store";
 import { rectOf, type Rect } from "@/lib/noteworthy/transform";
 import { cn } from "@/lib/utils";
 
