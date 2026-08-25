@@ -119,6 +119,7 @@ export function useUtility() {
       updatedAt: stamp,
       lastUsedAt: null,
       reuseIntervalDays: null,
+      reminders: [],
       ...patch,
     };
     setState((s) => ({ ...s, clips: [clip, ...s.clips] }));
