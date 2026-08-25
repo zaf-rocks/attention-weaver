@@ -134,9 +134,15 @@ export function RepositoryWorkspace({ api, onClose }: { api: UtilityApi; onClose
         {clips.length === 0 && (
           <p className="py-6 text-center text-[10px] text-muted-foreground">No clips here yet.</p>
         )}
-        {clips.map((c) => (
+        {clips.map((c, i) => (
           <article key={c.id} className="rounded-lg border border-border/60 bg-card/40 p-1.5">
             <div className="flex items-center gap-1">
+              <span
+                aria-hidden
+                className="grid h-6 w-6 shrink-0 place-items-center rounded border border-border/70 font-display text-[9px] text-muted-foreground"
+              >
+                {i + 1}
+              </span>
               <input
                 aria-label="Clip title"
                 value={c.title}
