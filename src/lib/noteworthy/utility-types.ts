@@ -24,6 +24,16 @@ export type Clip = {
   lastUsedAt: string | null;
   /** Local prototype reuse reminder, in days. No OS notification is scheduled. */
   reuseIntervalDays: number | null;
+  /** Scheduled alarms for this entry. In-app only — no system notifications. */
+  reminders: Reminder[];
+};
+
+export type Reminder = {
+  id: string;
+  /** Local datetime string, "YYYY-MM-DDTHH:mm". */
+  at: string;
+  label: string;
+  done: boolean;
 };
 
 export type DraftSnapshot = {
