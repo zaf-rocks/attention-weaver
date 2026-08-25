@@ -23,6 +23,7 @@ function migrate(raw: unknown): UtilityState {
         pinned: Boolean(c.pinned),
         lastUsedAt: c.lastUsedAt ?? null,
         reuseIntervalDays: c.reuseIntervalDays ?? null,
+        reminders: Array.isArray(c.reminders) ? c.reminders : [],
         tabId: tabIds.has(c.tabId) ? c.tabId : tabs[0]!.id,
       })),
     activeTabId: tabIds.has(p.activeTabId ?? "") ? p.activeTabId! : tabs[0]!.id,
