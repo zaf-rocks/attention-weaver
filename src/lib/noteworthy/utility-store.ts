@@ -174,6 +174,48 @@ export function useUtility() {
     });
   }, []);
 
+  /* ---------------- reminders (in-app alarms) ---------------- */
+  const addReminder = useCallback((clipId: string, at: string, label: string) => {
+    setState((s) => ({
+      ...s,
+      clips: s.clips.map((c) =>
+        c.id === clipId
+          ? {
+              ...c,
+              reminders: [...c.reminders, { id: uid("rem"), at, label, done: false }],
+              updatedAt: now(),
+            }
+          : c,
+      ),
+    }));
+  }, []);
+
+  const patchReminder = useCallback(
+    (clipId: string, remId: string, patch: Partial<Reminder>) => {
+      setState((s) => ({
+        ...s,
+        clips: s.clips.map((c) =>
+          c.id === clipId
+            ? {
+                ...c,
+                reminders: c.reminders.map((r) => (r.id === remId ? { ...r, ...patch } : r)),
+              }
+            : c,
+        ),
+      }));
+    },
+    [],
+  );
+
+  const removeReminder = useCallback((clipId: string, remId: string) => {
+    setState((s) => ({
+      ...s,
+      clips: s.clips.map((c) =>
+        c.id === clipId ? { ...c, reminders: c.reminders.filter((r) => r.id !== remId) } : c,
+      ),
+    }));
+  }, []);
+
   /* ---------------- capture dock ---------------- */
   const setDraft = useCallback((text: string) => {
     setState((s) => ({ ...s, draft: { text, savedAt: now() } }));
