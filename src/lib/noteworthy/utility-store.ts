@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { Clip, Destination, DraftSnapshot, RepoTab, UtilityState } from "./utility-types";
+import type {
+  Clip,
+  Destination,
+  DraftSnapshot,
+  Reminder,
+  RepoTab,
+  UtilityState,
+} from "./utility-types";
 import { HISTORY_LIMIT, UTILITY_VERSION, createInitialUtilityState, uid } from "./utility-initial";
 
 const KEY = "noteworthy.utility.v1";
