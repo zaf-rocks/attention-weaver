@@ -238,11 +238,65 @@ export function RepositoryWorkspace({ api, onClose }: { api: UtilityApi; onClose
                 {c.reuseIntervalDays ? ` · reminder ${c.reuseIntervalDays}d (local only)` : ""}
               </span>
             </div>
+
+            <div className="mt-1.5 rounded-md border border-border/50 p-1.5">
+              <p className="mb-1 text-[8.5px] tracking-widest text-muted-foreground uppercase">
+                Alarms
+              </p>
+              {c.reminders.map((r) => {
+                const due = !r.done && new Date(r.at).getTime() <= Date.now();
+                return (
+                  <div key={r.id} className="mb-1 flex flex-wrap items-center gap-1">
+                    <input
+                      aria-label="Alarm time"
+                      type="datetime-local"
+                      value={r.at}
+                      onChange={(e) => api.patchReminder(c.id, r.id, { at: e.target.value })}
+                      className="nw-input h-6 w-[150px] py-0 text-[9.5px]"
+                    />
+                    <input
+                      aria-label="Alarm label"
+                      placeholder="label"
+                      value={r.label}
+                      onChange={(e) => api.patchReminder(c.id, r.id, { label: e.target.value })}
+                      className="nw-input h-6 min-w-0 flex-1 py-0 text-[9.5px]"
+                    />
+                    {due && (
+                      <span className="rounded border border-primary/70 px-1 text-[8px] text-primary">
+                        due
+                      </span>
+                    )}
+                    <button
+                      onClick={() => api.patchReminder(c.id, r.id, { done: !r.done })}
+                      className="rounded border border-border/70 px-1.5 py-0.5 text-[9px]"
+                    >
+                      {r.done ? "Reopen" : "Done"}
+                    </button>
+                    <button
+                      aria-label="Remove alarm"
+                      onClick={() => api.removeReminder(c.id, r.id)}
+                      className="rounded border border-destructive/60 px-1.5 py-0.5 text-[9px] text-destructive"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                );
+              })}
+              <button
+                onClick={() => {
+                  const d = new Date(Date.now() + 60 * 60 * 1000 - new Date().getTimezoneOffset() * 60000);
+                  api.addReminder(c.id, d.toISOString().slice(0, 16), "");
+                }}
+                className="rounded border border-border/70 px-1.5 py-0.5 text-[9px]"
+              >
+                + Add alarm
+              </button>
+            </div>
           </article>
         ))}
         <p className="pt-1 text-[8px] leading-relaxed text-muted-foreground">
-          Reuse reminders are stored locally as metadata only — this prototype schedules no system
-          notifications.
+          Alarms and reuse reminders are stored locally and surface inside Noteworthy while it is
+          open — this prototype schedules no operating-system notifications.
         </p>
       </div>
 
