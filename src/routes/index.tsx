@@ -46,9 +46,17 @@ const heightPct = (w: number, max: number) => 58 + 42 * Math.pow(w / max, 0.7);
 
 function Field() {
   const { state, updateFacet, touchFacet, setWeight, updateSettings, reset } = useNoteworthy();
+  const api = useUtility();
   const [selected, setSelected] = useState<{ id: SlotId; rect: Rect } | null>(null);
+  const [util, setUtil] = useState<{ id: "UTIL_TOP" | "UTIL_BOTTOM"; rect: Rect } | null>(null);
   const f = state.facets;
   const amb = state.settings.ambientMotion;
+  const reduced = state.settings.reducedMotion;
+
+  const openUtil = (id: "UTIL_TOP" | "UTIL_BOTTOM", el: HTMLElement) => {
+    touchFacet(id);
+    setUtil({ id, rect: rectOf(el) });
+  };
 
   const open = (id: SlotId, el: HTMLElement) => {
     touchFacet(id);
