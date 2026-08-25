@@ -44,6 +44,7 @@ export function createInitialUtilityState(): UtilityState {
         updatedAt: new Date().toISOString(),
         lastUsedAt: null,
         reuseIntervalDays: null,
+        reminders: [],
       },
     ],
     activeTabId: tabs[0]!.id,
