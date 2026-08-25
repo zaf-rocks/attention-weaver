@@ -6,6 +6,12 @@ import { useNoteworthy } from "@/lib/noteworthy/store";
 import { FacetSurface } from "@/components/noteworthy/FacetSurface";
 import { FacetFront } from "@/components/noteworthy/FacetFront";
 import { FacetOverlay } from "@/components/noteworthy/FacetOverlay";
+import { RepositoryBar } from "@/components/noteworthy/RepositoryBar";
+import { RepositoryWorkspace } from "@/components/noteworthy/RepositoryWorkspace";
+import { CaptureBar } from "@/components/noteworthy/CaptureBar";
+import { CaptureWorkspace } from "@/components/noteworthy/CaptureWorkspace";
+import { UtilityStage } from "@/components/noteworthy/UtilityStage";
+import { useUtility } from "@/lib/noteworthy/utility-store";
 import { rectOf, type Rect } from "@/lib/noteworthy/transform";
 import { cn } from "@/lib/utils";
 
@@ -40,9 +46,17 @@ const heightPct = (w: number, max: number) => 58 + 42 * Math.pow(w / max, 0.7);
 
 function Field() {
   const { state, updateFacet, touchFacet, setWeight, updateSettings, reset } = useNoteworthy();
+  const api = useUtility();
   const [selected, setSelected] = useState<{ id: SlotId; rect: Rect } | null>(null);
+  const [util, setUtil] = useState<{ id: "UTIL_TOP" | "UTIL_BOTTOM"; rect: Rect } | null>(null);
   const f = state.facets;
   const amb = state.settings.ambientMotion;
+  const reduced = state.settings.reducedMotion;
+
+  const openUtil = (id: "UTIL_TOP" | "UTIL_BOTTOM", el: HTMLElement) => {
+    touchFacet(id);
+    setUtil({ id, rect: rectOf(el) });
+  };
 
   const open = (id: SlotId, el: HTMLElement) => {
     touchFacet(id);

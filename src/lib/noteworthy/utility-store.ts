@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { Clip, Destination, DraftSnapshot, RepoTab, UtilityState } from "./utility-types";
+import type {
+  Clip,
+  Destination,
+  DraftSnapshot,
+  Reminder,
+  RepoTab,
+  UtilityState,
+} from "./utility-types";
 import { HISTORY_LIMIT, UTILITY_VERSION, createInitialUtilityState, uid } from "./utility-initial";
 
 const KEY = "noteworthy.utility.v1";
@@ -23,6 +30,7 @@ function migrate(raw: unknown): UtilityState {
         pinned: Boolean(c.pinned),
         lastUsedAt: c.lastUsedAt ?? null,
         reuseIntervalDays: c.reuseIntervalDays ?? null,
+        reminders: Array.isArray(c.reminders) ? c.reminders : [],
         tabId: tabIds.has(c.tabId) ? c.tabId : tabs[0]!.id,
       })),
     activeTabId: tabIds.has(p.activeTabId ?? "") ? p.activeTabId! : tabs[0]!.id,
@@ -119,6 +127,7 @@ export function useUtility() {
       updatedAt: stamp,
       lastUsedAt: null,
       reuseIntervalDays: null,
+      reminders: [],
       ...patch,
     };
     setState((s) => ({ ...s, clips: [clip, ...s.clips] }));
@@ -170,6 +179,48 @@ export function useUtility() {
       const rest = s.clips.filter((c) => c.tabId !== clip.tabId);
       return { ...s, clips: [...siblings, ...rest] };
     });
+  }, []);
+
+  /* ---------------- reminders (in-app alarms) ---------------- */
+  const addReminder = useCallback((clipId: string, at: string, label: string) => {
+    setState((s) => ({
+      ...s,
+      clips: s.clips.map((c) =>
+        c.id === clipId
+          ? {
+              ...c,
+              reminders: [...c.reminders, { id: uid("rem"), at, label, done: false }],
+              updatedAt: now(),
+            }
+          : c,
+      ),
+    }));
+  }, []);
+
+  const patchReminder = useCallback(
+    (clipId: string, remId: string, patch: Partial<Reminder>) => {
+      setState((s) => ({
+        ...s,
+        clips: s.clips.map((c) =>
+          c.id === clipId
+            ? {
+                ...c,
+                reminders: c.reminders.map((r) => (r.id === remId ? { ...r, ...patch } : r)),
+              }
+            : c,
+        ),
+      }));
+    },
+    [],
+  );
+
+  const removeReminder = useCallback((clipId: string, remId: string) => {
+    setState((s) => ({
+      ...s,
+      clips: s.clips.map((c) =>
+        c.id === clipId ? { ...c, reminders: c.reminders.filter((r) => r.id !== remId) } : c,
+      ),
+    }));
   }, []);
 
   /* ---------------- capture dock ---------------- */
@@ -258,6 +309,9 @@ export function useUtility() {
     duplicateClip,
     markUsed,
     moveClip,
+    addReminder,
+    patchReminder,
+    removeReminder,
     setDraft,
     commitHistory,
     clearDraft,

@@ -36,8 +36,8 @@ type Seed = {
 const SEEDS: Seed[] = [
   {
     id: "UTIL_TOP",
-    title: "Field Status",
-    tagline: "Attention balanced",
+    title: "Prompt Repository",
+    tagline: "Clipboard · prompts · alarms",
     icon: "◈",
     weight: 0,
     body: ["#0b1220", "#131a2e"],
@@ -197,8 +197,8 @@ const SEEDS: Seed[] = [
   },
   {
     id: "UTIL_BOTTOM",
-    title: "Field Controls",
-    tagline: "Motion · Effects · Reset",
+    title: "Capture Dock",
+    tagline: "Autosaving quick capture",
     icon: "▣",
     weight: 0,
     body: ["#0b1220", "#131a2e"],
