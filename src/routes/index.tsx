@@ -120,9 +120,17 @@ function Field() {
       <h1 className="sr-only">Noteworthy — spatial attention field</h1>
 
       <div className="relative z-10 mx-auto flex h-full w-full max-w-[520px] flex-col gap-1.5 p-2">
-        {/* ROW 1 — upper utility bar */}
+        {/* ROW 1 — upper utility bar: Prompt & Conversation Repository */}
         <div style={{ flex: "0 0 5%" }}>
-          <Tile id="UTIL_TOP" scale="bar" style={{ width: "100%", height: "100%" }} />
+          <RepositoryBar
+            facet={f.UTIL_TOP}
+            utility={api.utility}
+            ambient={amb}
+            reduced={reduced}
+            onOpen={(el) => openUtil("UTIL_TOP", el)}
+            recede={Boolean(util && util.id !== "UTIL_TOP") || Boolean(selected)}
+            hidden={util?.id === "UTIL_TOP"}
+          />
         </div>
 
         {/* ROW 2 — upper band */}
