@@ -170,11 +170,52 @@ function Field() {
           ))}
         </div>
 
-        {/* ROW 5 — lower utility bar */}
+        {/* ROW 5 — lower utility bar: Auto-Saving Capture Dock */}
         <div style={{ flex: "0 0 5%" }}>
-          <Tile id="UTIL_BOTTOM" scale="bar" style={{ width: "100%", height: "100%" }} />
+          <CaptureBar
+            facet={f.UTIL_BOTTOM}
+            utility={api.utility}
+            ambient={amb}
+            reduced={reduced}
+            onOpen={(el) => openUtil("UTIL_BOTTOM", el)}
+            onDraft={api.setDraft}
+            onSaveDefault={(text) => {
+              const ids = api.utility.defaultTabIds.length
+                ? api.utility.defaultTabIds
+                : [api.utility.tabs[0]!.id];
+              ids.forEach((tabId) =>
+                api.addClip(tabId, {
+                  title: text.trim().split("\n")[0]!.slice(0, 60) || "Capture",
+                  body: text,
+                }),
+              );
+              api.commitHistory(text);
+              api.clearDraft();
+            }}
+            recede={Boolean(util && util.id !== "UTIL_BOTTOM") || Boolean(selected)}
+            hidden={util?.id === "UTIL_BOTTOM"}
+          />
         </div>
       </div>
+
+      {util && (
+        <UtilityStage
+          key={util.id}
+          facet={f[util.id]}
+          sourceRect={util.rect}
+          reduced={reduced}
+          testId={util.id === "UTIL_TOP" ? "nw-repo-workspace" : "nw-capture-workspace"}
+          onClose={() => setUtil(null)}
+        >
+          {(close) =>
+            util.id === "UTIL_TOP" ? (
+              <RepositoryWorkspace api={api} onClose={close} />
+            ) : (
+              <CaptureWorkspace api={api} onClose={close} />
+            )
+          }
+        </UtilityStage>
+      )}
 
       {selected && (
         <FacetOverlay
