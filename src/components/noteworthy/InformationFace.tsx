@@ -9,7 +9,8 @@ export function InformationFace({
   facet,
   positionLabel,
   onPatch,
-  onWeight,
+  onNotch,
+  notice,
   onClose,
   onCustomize,
   onSettings,
@@ -17,7 +18,8 @@ export function InformationFace({
   facet: Facet;
   positionLabel: string;
   onPatch: (patch: Partial<Facet>) => void;
-  onWeight: (tenths: number) => void;
+  onNotch: (notch: number) => void;
+  notice: string | null;
   onClose: () => void;
   onCustomize: () => void;
   onSettings: () => void;
