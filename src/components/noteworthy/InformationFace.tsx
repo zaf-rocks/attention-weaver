@@ -1,8 +1,7 @@
 import { useState } from "react";
 import type { Facet, Reminder, Task } from "@/lib/noteworthy/types";
 import { POSITION_NAMES } from "@/lib/noteworthy/initial";
-import { MAX_WEIGHT, MIN_WEIGHT, toPct } from "@/lib/noteworthy/weight";
-import { Slider } from "./EffectPicker";
+import { SizeNotchControl } from "./SizeNotchControl";
 
 const uid = () => Math.random().toString(36).slice(2, 9);
 
