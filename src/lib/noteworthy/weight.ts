@@ -124,7 +124,7 @@ export type NotchResult = {
   facets: Record<SlotId, Facet>;
   notch: Notch;
   changed: boolean;
-  reason?: "locked" | "no-donors" | "soft-stop" | "none";
+  reason?: "locked" | "no-donors" | "soft-stop" | "none" | undefined;
 };
 
 /**
