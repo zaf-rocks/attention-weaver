@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Facet, FieldSettings, NoteworthyState, SlotId } from "./types";
 import { createInitialState } from "./initial";
-import { setWeight as engineSetWeight } from "./weight";
+import {
+  NOTCH_STEP,
+  RECOMMENDED,
+  clampNotch,
+  normalizeFromNotches,
+  setNotch as engineSetNotch,
+} from "./weight";
 
 const KEY = "noteworthy.v1";
 
@@ -11,15 +17,29 @@ function load(): NoteworthyState {
   try {
     const raw = window.localStorage.getItem(KEY);
     if (!raw) return base;
-    const parsed = JSON.parse(raw) as NoteworthyState;
-    if (!parsed || parsed.version !== base.version) return base;
-    // Merge so newly added fields always exist.
+    const parsed = JSON.parse(raw) as Partial<NoteworthyState>;
+    if (!parsed || !parsed.facets) return base;
+
+    // Merge so newly added fields always exist, then migrate legacy weights.
     const facets = { ...base.facets };
     for (const id of Object.keys(base.facets) as SlotId[]) {
       const stored = parsed.facets?.[id];
-      if (stored) facets[id] = { ...base.facets[id], ...stored };
+      if (!stored) continue;
+      const merged = { ...base.facets[id], ...stored };
+      // Legacy state stored continuous percentages and no notch: derive one.
+      const notch =
+        typeof stored.notch === "number"
+          ? clampNotch(stored.notch)
+          : clampNotch(Math.round((merged.weight - RECOMMENDED[id]) / NOTCH_STEP));
+      const locked = typeof stored.locked === "boolean" ? stored.locked : true;
+      facets[id] = { ...merged, notch: merged.utility ? 0 : notch, locked };
     }
-    return { version: base.version, facets, settings: { ...base.settings, ...parsed.settings } };
+
+    return {
+      version: base.version,
+      facets: normalizeFromNotches(facets),
+      settings: { ...base.settings, ...parsed.settings },
+    };
   } catch {
     return base;
   }
@@ -55,8 +75,28 @@ export function useNoteworthy() {
     }));
   }, []);
 
-  const setWeight = useCallback((id: SlotId, tenths: number) => {
-    setState((s) => ({ ...s, facets: engineSetWeight(s.facets, id, tenths) }));
+  const [notice, setNotice] = useState<string | null>(null);
+
+  const setNotch = useCallback((id: SlotId, notch: number) => {
+    setState((s) => {
+      const result = engineSetNotch(s.facets, id, notch);
+      if (!result.changed) {
+        setNotice(
+          result.reason === "no-donors"
+            ? "Unlock at least one other facet to redistribute attention."
+            : result.reason === "locked"
+              ? "Unlock this facet to adjust its size."
+              : "No further attention is available in that direction.",
+        );
+        return s;
+      }
+      setNotice(
+        result.reason === "soft-stop"
+          ? "Stopped early — eligible facets reached their limits."
+          : null,
+      );
+      return { ...s, facets: result.facets };
+    });
   }, []);
 
   const updateSettings = useCallback((patch: Partial<FieldSettings>) => {
@@ -65,5 +105,5 @@ export function useNoteworthy() {
 
   const reset = useCallback(() => setState(createInitialState()), []);
 
-  return { state, updateFacet, touchFacet, setWeight, updateSettings, reset };
+  return { state, updateFacet, touchFacet, setNotch, notice, setNotice, updateSettings, reset };
 }

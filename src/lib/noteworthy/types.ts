@@ -44,6 +44,7 @@ export type Facet = {
   tasks: Task[];
   notes: string;
   weight: number; // tenths of a percent (integer), 0 for utility facets
+  notch: number; // -3..+3 discrete size/attention notch, 0 = Recommended
   locked: boolean;
   complete: boolean;
   lastAccessed: string;

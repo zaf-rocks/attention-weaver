@@ -26,7 +26,8 @@ export function FacetOverlay({
   settings,
   sourceRect,
   onPatch,
-  onWeight,
+  onNotch,
+  notice,
   onSettings,
   onClose,
   onReset,
@@ -36,7 +37,8 @@ export function FacetOverlay({
   settings: FieldSettings;
   sourceRect: Rect;
   onPatch: (patch: Partial<Facet>) => void;
-  onWeight: (tenths: number) => void;
+  onNotch: (notch: number) => void;
+  notice: string | null;
   onSettings: (patch: Partial<FieldSettings>) => void;
   onClose: () => void;
   onReset: () => void;
@@ -186,7 +188,8 @@ export function FacetOverlay({
                   facet={facet}
                   positionLabel={positionLabel}
                   onPatch={onPatch}
-                  onWeight={onWeight}
+                  onNotch={onNotch}
+                  notice={notice}
                   onClose={close}
                   onCustomize={() => toMode("customize")}
                   onSettings={() => toMode("settings")}

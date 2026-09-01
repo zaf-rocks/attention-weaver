@@ -1,8 +1,7 @@
 import { useState } from "react";
 import type { Facet, Reminder, Task } from "@/lib/noteworthy/types";
 import { POSITION_NAMES } from "@/lib/noteworthy/initial";
-import { MAX_WEIGHT, MIN_WEIGHT, toPct } from "@/lib/noteworthy/weight";
-import { Slider } from "./EffectPicker";
+import { SizeNotchControl } from "./SizeNotchControl";
 
 const uid = () => Math.random().toString(36).slice(2, 9);
 
@@ -10,7 +9,8 @@ export function InformationFace({
   facet,
   positionLabel,
   onPatch,
-  onWeight,
+  onNotch,
+  notice,
   onClose,
   onCustomize,
   onSettings,
@@ -18,7 +18,8 @@ export function InformationFace({
   facet: Facet;
   positionLabel: string;
   onPatch: (patch: Partial<Facet>) => void;
-  onWeight: (tenths: number) => void;
+  onNotch: (notch: number) => void;
+  notice: string | null;
   onClose: () => void;
   onCustomize: () => void;
   onSettings: () => void;
@@ -76,26 +77,22 @@ export function InformationFace({
           />
         </div>
 
-        {/* Weight */}
-        <div className="rounded-xl border border-border/60 bg-card/40 p-2.5">
-          <Slider
-            label={`Attention weight — ${toPct(facet.weight)}%`}
-            value={facet.weight}
-            min={MIN_WEIGHT}
-            max={MAX_WEIGHT}
-            step={5}
-            onChange={onWeight}
-          />
-          <label className="mt-2 flex items-center gap-2 text-xs">
-            <input
-              type="checkbox"
-              checked={facet.locked}
-              onChange={(e) => onPatch({ locked: e.target.checked })}
-              className="h-4 w-4 accent-[var(--primary)]"
-            />
-            Lock weight (excluded from redistribution)
-          </label>
-        </div>
+        {/* Size & attention */}
+        {!facet.utility && (
+          <div className="rounded-xl border border-border/60 bg-card/40 p-2.5">
+            <SizeNotchControl value={facet.notch} disabled={facet.locked} onChange={onNotch} />
+            <label className="mt-2 flex items-center gap-2 text-xs">
+              <input
+                type="checkbox"
+                checked={!facet.locked}
+                onChange={(e) => onPatch({ locked: !e.target.checked })}
+                className="h-4 w-4 accent-[var(--primary)]"
+              />
+              Unlock size adjustment (allows give and take)
+            </label>
+            {notice && <p className="mt-1.5 text-[10px] text-muted-foreground">{notice}</p>}
+          </div>
+        )}
 
         {/* Tasks */}
         <div>
