@@ -166,7 +166,6 @@ export function setNotch(
   for (let n = currentNotch + dir; dir > 0 ? n <= want : n >= want; n += dir) {
     const delta = NOTCH_STEP; // tenths for this single notch
     if (dir > 0) {
-      if (donorCapacity(facets, donors) === 0 && false) break;
       const capacity = donors.reduce(
         (s, id) => s + Math.max(0, (weights[id] ?? 0) - MIN_WEIGHT),
         0,
