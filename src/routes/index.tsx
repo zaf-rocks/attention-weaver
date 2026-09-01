@@ -45,7 +45,8 @@ const share = (w: number) => Math.pow(w, 0.8);
 const heightPct = (w: number, max: number) => 58 + 42 * Math.pow(w / max, 0.7);
 
 function Field() {
-  const { state, updateFacet, touchFacet, setWeight, updateSettings, reset } = useNoteworthy();
+  const { state, updateFacet, touchFacet, setNotch, notice, setNotice, updateSettings, reset } =
+    useNoteworthy();
   const api = useUtility();
   const [selected, setSelected] = useState<{ id: SlotId; rect: Rect } | null>(null);
   const [util, setUtil] = useState<{ id: "UTIL_TOP" | "UTIL_BOTTOM"; rect: Rect } | null>(null);
@@ -225,7 +226,8 @@ function Field() {
           settings={state.settings}
           sourceRect={selected.rect}
           onPatch={(patch) => updateFacet(selected.id, patch)}
-          onWeight={(tenths) => setWeight(selected.id, tenths)}
+          notice={notice}
+          onNotch={(n) => setNotch(selected.id, n)}
           onSettings={updateSettings}
           onClose={() => setSelected(null)}
           onReset={() => {

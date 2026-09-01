@@ -222,7 +222,8 @@ const makeFacet = (s: Seed): Facet => ({
   ],
   notes: "",
   weight: s.weight,
-  locked: false,
+  notch: 0,
+  locked: true,
   complete: false,
   lastAccessed: new Date().toISOString(),
   due: "",
@@ -241,7 +242,7 @@ export function createInitialState(): NoteworthyState {
   const facets = {} as Record<SlotId, Facet>;
   for (const s of SEEDS) facets[s.id] = makeFacet(s);
   return {
-    version: 1,
+    version: 2,
     facets,
     settings: {
       reducedMotion: false,
