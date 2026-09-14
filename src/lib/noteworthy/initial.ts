@@ -1,5 +1,7 @@
 import type { Facet, NoteworthyState, SlotId } from "./types";
 
+export const STATE_VERSION = 3;
+
 export const POSITION_NAMES: Record<SlotId, string> = {
   UTIL_TOP: "Upper Utility Bar",
   TFL: "Top Far Left",
@@ -23,9 +25,8 @@ export const POSITION_NAMES: Record<SlotId, string> = {
 type Seed = {
   id: SlotId;
   title: string;
-  tagline: string;
+  description: string;
   icon: string;
-  weight: number;
   body: [string, string];
   perimeter: [string, string];
   effect: string;
@@ -37,9 +38,8 @@ const SEEDS: Seed[] = [
   {
     id: "UTIL_TOP",
     title: "Prompt Repository",
-    tagline: "Clipboard · prompts · alarms",
+    description: "Clipboard, prompts and saved clips.",
     icon: "◈",
-    weight: 0,
     body: ["#0b1220", "#131a2e"],
     perimeter: ["#5ef2ff", "#8b6bff"],
     effect: "marquee",
@@ -48,9 +48,8 @@ const SEEDS: Seed[] = [
   {
     id: "TFL",
     title: "Ideas",
-    tagline: "Loose sparks",
+    description: "Loose sparks worth keeping.",
     icon: "✦",
-    weight: 35,
     body: ["#2a0d18", "#12060f"],
     perimeter: ["#ff2d55", "#ff7a18"],
     effect: "breathe",
@@ -58,9 +57,8 @@ const SEEDS: Seed[] = [
   {
     id: "TL",
     title: "Research",
-    tagline: "Open threads",
+    description: "Open threads still being pulled.",
     icon: "◎",
-    weight: 50,
     body: ["#2a1606", "#120a05"],
     perimeter: ["#ff7a18", "#ffd166"],
     effect: "prismatic",
@@ -68,9 +66,8 @@ const SEEDS: Seed[] = [
   {
     id: "TC",
     title: "Planning",
-    tagline: "Next horizon",
+    description: "The next horizon being shaped.",
     icon: "△",
-    weight: 70,
     body: ["#2a2606", "#0f1005"],
     perimeter: ["#ffd166", "#a8ff3e"],
     effect: "marquee",
@@ -78,9 +75,8 @@ const SEEDS: Seed[] = [
   {
     id: "TR",
     title: "Learning",
-    tagline: "In progress",
+    description: "Studies currently in progress.",
     icon: "❖",
-    weight: 50,
     body: ["#0a2413", "#04120a"],
     perimeter: ["#a8ff3e", "#2bffc6"],
     effect: "glint",
@@ -88,9 +84,8 @@ const SEEDS: Seed[] = [
   {
     id: "TFR",
     title: "Follow-Up",
-    tagline: "Awaiting reply",
+    description: "Sent and awaiting a reply.",
     icon: "↻",
-    weight: 35,
     body: ["#03221f", "#020f10"],
     perimeter: ["#2bffc6", "#37d6ff"],
     effect: "pulse",
@@ -98,9 +93,8 @@ const SEEDS: Seed[] = [
   {
     id: "UL",
     title: "Creative Work",
-    tagline: "Deep making",
+    description: "Deep making that needs quiet hours.",
     icon: "◐",
-    weight: 90,
     body: ["#1c0a2a", "#0b0416"],
     perimeter: ["#c04bff", "#ff2d55"],
     effect: "aura",
@@ -108,9 +102,8 @@ const SEEDS: Seed[] = [
   {
     id: "LL",
     title: "Communication",
-    tagline: "Signal traffic",
+    description: "Signal traffic in and out.",
     icon: "≋",
-    weight: 90,
     body: ["#04182b", "#020c17"],
     perimeter: ["#37d6ff", "#6a5bff"],
     effect: "datastream",
@@ -118,9 +111,8 @@ const SEEDS: Seed[] = [
   {
     id: "C",
     title: "Primary Focus",
-    tagline: "Everything else orbits this",
+    description: "Everything else in the field orbits this.",
     icon: "◉",
-    weight: 160,
     body: ["#0a1930", "#170a2b"],
     perimeter: ["#5ef2ff", "#c04bff"],
     effect: "shockwave",
@@ -128,9 +120,8 @@ const SEEDS: Seed[] = [
   {
     id: "UR",
     title: "Documentation",
-    tagline: "Capture the record",
+    description: "Capturing the record as it happens.",
     icon: "▤",
-    weight: 90,
     body: ["#0d1030", "#050718"],
     perimeter: ["#6a5bff", "#2bffc6"],
     effect: "nodes",
@@ -138,9 +129,8 @@ const SEEDS: Seed[] = [
   {
     id: "LR",
     title: "Administration",
-    tagline: "Keeps it running",
+    description: "Unglamorous work that keeps it running.",
     icon: "⬡",
-    weight: 90,
     body: ["#231033", "#0d0619"],
     perimeter: ["#ff5bd0", "#8b6bff"],
     effect: "electric",
@@ -148,9 +138,8 @@ const SEEDS: Seed[] = [
   {
     id: "BFL",
     title: "Future Projects",
-    tagline: "Not yet, but soon",
+    description: "Not yet, but deliberately not forgotten.",
     icon: "⌬",
-    weight: 35,
     body: ["#2b0620", "#130310"],
     perimeter: ["#ff2d55", "#c04bff"],
     effect: "embers",
@@ -158,9 +147,8 @@ const SEEDS: Seed[] = [
   {
     id: "BL",
     title: "Home",
-    tagline: "Quiet infrastructure",
+    description: "Quiet infrastructure of daily life.",
     icon: "⌂",
-    weight: 50,
     body: ["#062820", "#02110e"],
     perimeter: ["#2bffc6", "#a8ff3e"],
     effect: "breathe",
@@ -168,9 +156,8 @@ const SEEDS: Seed[] = [
   {
     id: "BC",
     title: "Health",
-    tagline: "Non-negotiable",
+    description: "Non-negotiable upkeep.",
     icon: "❤",
-    weight: 70,
     body: ["#2a0710", "#120309"],
     perimeter: ["#ff2d55", "#ffd166"],
     effect: "pulse",
@@ -178,9 +165,8 @@ const SEEDS: Seed[] = [
   {
     id: "BR",
     title: "Finance",
-    tagline: "Under review",
+    description: "Numbers currently under review.",
     icon: "◇",
-    weight: 50,
     body: ["#07202b", "#020f14"],
     perimeter: ["#37d6ff", "#5ef2ff"],
     effect: "lasers",
@@ -188,9 +174,8 @@ const SEEDS: Seed[] = [
   {
     id: "BFR",
     title: "Maintenance",
-    tagline: "Slow burn",
+    description: "Slow burn, never quite finished.",
     icon: "⚙",
-    weight: 35,
     body: ["#16112b", "#080615"],
     perimeter: ["#8b6bff", "#37d6ff"],
     effect: "glitch",
@@ -198,9 +183,8 @@ const SEEDS: Seed[] = [
   {
     id: "UTIL_BOTTOM",
     title: "Capture Dock",
-    tagline: "Autosaving quick capture",
+    description: "Autosaving quick capture.",
     icon: "▣",
-    weight: 0,
     body: ["#0b1220", "#131a2e"],
     perimeter: ["#c04bff", "#5ef2ff"],
     effect: "rotate",
@@ -211,19 +195,15 @@ const SEEDS: Seed[] = [
 const makeFacet = (s: Seed): Facet => ({
   id: s.id,
   utility: Boolean(s.utility),
+  positionName: POSITION_NAMES[s.id],
   title: s.title,
-  tagline: s.tagline,
-  overview:
-    "Editable overview. Describe why this occupies space in the field and what changes when it is resolved.",
+  description: s.description,
   icon: s.icon,
   tasks: [
-    { id: `${s.id}-t1`, text: "Define the next concrete step", done: false },
-    { id: `${s.id}-t2`, text: "Review supporting material", done: false },
+    { id: `${s.id}-t1`, text: "Define the next concrete step", done: false, subtasks: [] },
+    { id: `${s.id}-t2`, text: "Review supporting material", done: false, subtasks: [] },
   ],
   notes: "",
-  weight: s.weight,
-  notch: 0,
-  locked: true,
   complete: false,
   lastAccessed: new Date().toISOString(),
   due: "",
@@ -242,7 +222,7 @@ export function createInitialState(): NoteworthyState {
   const facets = {} as Record<SlotId, Facet>;
   for (const s of SEEDS) facets[s.id] = makeFacet(s);
   return {
-    version: 2,
+    version: STATE_VERSION,
     facets,
     settings: {
       reducedMotion: false,

@@ -21,6 +21,7 @@ export type Task = {
   id: string;
   text: string;
   done: boolean;
+  subtasks: Task[];
 };
 
 export type Reminder = {
@@ -37,15 +38,14 @@ export type Gradient = {
 export type Facet = {
   id: SlotId;
   utility: boolean;
+  /** Editable full-word position name. Never an internal code. */
+  positionName: string;
   title: string;
-  tagline: string;
-  overview: string;
+  /** Single merged description. Replaces the former tagline + overview pair. */
+  description: string;
   icon: string;
   tasks: Task[];
   notes: string;
-  weight: number; // tenths of a percent (integer), 0 for utility facets
-  notch: number; // -3..+3 discrete size/attention notch, 0 = Recommended
-  locked: boolean;
   complete: boolean;
   lastAccessed: string;
   due: string;

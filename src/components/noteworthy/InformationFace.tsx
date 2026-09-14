@@ -1,47 +1,95 @@
 import { useState } from "react";
 import type { Facet, Reminder, Task } from "@/lib/noteworthy/types";
-import { POSITION_NAMES } from "@/lib/noteworthy/initial";
-import { SizeNotchControl } from "./SizeNotchControl";
 
 const uid = () => Math.random().toString(36).slice(2, 9);
 
+/** Recursively patch a task or subtask by id. */
+function patchIn(tasks: Task[], id: string, patch: Partial<Task>): Task[] {
+  return tasks.map((t) =>
+    t.id === id ? { ...t, ...patch } : { ...t, subtasks: patchIn(t.subtasks, id, patch) },
+  );
+}
+function removeIn(tasks: Task[], id: string): Task[] {
+  return tasks
+    .filter((t) => t.id !== id)
+    .map((t) => ({ ...t, subtasks: removeIn(t.subtasks, id) }));
+}
+function addSubtaskIn(tasks: Task[], parentId: string, text: string): Task[] {
+  return tasks.map((t) =>
+    t.id === parentId
+      ? { ...t, subtasks: [...t.subtasks, { id: uid(), text, done: false, subtasks: [] }] }
+      : { ...t, subtasks: addSubtaskIn(t.subtasks, parentId, text) },
+  );
+}
+
 export function InformationFace({
   facet,
-  positionLabel,
   onPatch,
-  onNotch,
-  notice,
   onClose,
   onCustomize,
-  onSettings,
 }: {
   facet: Facet;
-  positionLabel: string;
   onPatch: (patch: Partial<Facet>) => void;
-  onNotch: (notch: number) => void;
-  notice: string | null;
   onClose: () => void;
   onCustomize: () => void;
-  onSettings: () => void;
 }) {
   const [newTask, setNewTask] = useState("");
 
-  const patchTask = (id: string, patch: Partial<Task>) =>
-    onPatch({ tasks: facet.tasks.map((t) => (t.id === id ? { ...t, ...patch } : t)) });
-
-  const addReminder = () =>
-    onPatch({
-      reminders: [...facet.reminders, { id: uid(), at: "", label: "Reminder" } as Reminder].slice(
-        0,
-        3,
-      ),
-    });
+  const TaskRow = ({ task, depth }: { task: Task; depth: number }) => (
+    <li style={{ marginLeft: depth * 14 }}>
+      <div className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          checked={task.done}
+          onChange={(e) => onPatch({ tasks: patchIn(facet.tasks, task.id, { done: e.target.checked }) })}
+          className="h-4 w-4 shrink-0 accent-[var(--primary)]"
+          aria-label={`Complete ${task.text}`}
+        />
+        <input
+          className={`nw-input ${task.done ? "line-through opacity-60" : ""}`}
+          value={task.text}
+          onChange={(e) => onPatch({ tasks: patchIn(facet.tasks, task.id, { text: e.target.value }) })}
+          aria-label="Task text"
+        />
+        {depth < 2 && (
+          <button
+            type="button"
+            className="shrink-0 px-1 text-muted-foreground hover:text-primary"
+            aria-label={`Add subtask to ${task.text}`}
+            onClick={() => onPatch({ tasks: addSubtaskIn(facet.tasks, task.id, "New subtask") })}
+          >
+            ↳
+          </button>
+        )}
+        <button
+          type="button"
+          className="shrink-0 px-1 text-muted-foreground hover:text-destructive"
+          aria-label="Delete task"
+          onClick={() => onPatch({ tasks: removeIn(facet.tasks, task.id) })}
+        >
+          ✕
+        </button>
+      </div>
+      {task.subtasks.length > 0 && (
+        <ul className="mt-1 space-y-1">
+          {task.subtasks.map((s) => (
+            <TaskRow key={s.id} task={s} depth={depth + 1} />
+          ))}
+        </ul>
+      )}
+    </li>
+  );
 
   return (
     <div className="flex h-full flex-col">
       <header className="flex items-start gap-2 border-b border-border/60 px-3 py-2">
         <div className="min-w-0 flex-1">
-          <span className="nw-label">{positionLabel || POSITION_NAMES[facet.id]}</span>
+          <input
+            className="nw-input text-[10px] tracking-[0.18em] text-muted-foreground uppercase"
+            value={facet.positionName}
+            onChange={(e) => onPatch({ positionName: e.target.value })}
+            aria-label="Position name"
+          />
           <input
             className="nw-input mt-1 font-display text-base font-semibold"
             value={facet.title}
@@ -59,68 +107,22 @@ export function InformationFace({
       </header>
 
       <div className="nw-scroll flex-1 space-y-3 px-3 py-3">
-        <input
-          className="nw-input"
-          value={facet.tagline}
-          onChange={(e) => onPatch({ tagline: e.target.value })}
-          placeholder="Tagline"
-          aria-label="Tagline"
-        />
-
         <div>
-          <span className="nw-label">Overview</span>
+          <span className="nw-label">Description</span>
           <textarea
-            className="nw-input mt-1 min-h-[64px] resize-none"
-            value={facet.overview}
-            onChange={(e) => onPatch({ overview: e.target.value })}
-            aria-label="Overview"
+            className="nw-input mt-1 min-h-[60px] resize-none"
+            value={facet.description}
+            onChange={(e) => onPatch({ description: e.target.value })}
+            aria-label="Description"
           />
         </div>
-
-        {/* Size & attention */}
-        {!facet.utility && (
-          <div className="rounded-xl border border-border/60 bg-card/40 p-2.5">
-            <SizeNotchControl value={facet.notch} disabled={facet.locked} onChange={onNotch} />
-            <label className="mt-2 flex items-center gap-2 text-xs">
-              <input
-                type="checkbox"
-                checked={!facet.locked}
-                onChange={(e) => onPatch({ locked: !e.target.checked })}
-                className="h-4 w-4 accent-[var(--primary)]"
-              />
-              Unlock size adjustment (allows give and take)
-            </label>
-            {notice && <p className="mt-1.5 text-[10px] text-muted-foreground">{notice}</p>}
-          </div>
-        )}
 
         {/* Tasks */}
         <div>
           <span className="nw-label">Tasks</span>
           <ul className="mt-1 space-y-1">
             {facet.tasks.map((t) => (
-              <li key={t.id} className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={t.done}
-                  onChange={(e) => patchTask(t.id, { done: e.target.checked })}
-                  className="h-4 w-4 shrink-0 accent-[var(--primary)]"
-                  aria-label={`Complete ${t.text}`}
-                />
-                <input
-                  className={`nw-input ${t.done ? "line-through opacity-60" : ""}`}
-                  value={t.text}
-                  onChange={(e) => patchTask(t.id, { text: e.target.value })}
-                  aria-label="Task text"
-                />
-                <button
-                  className="shrink-0 px-1 text-muted-foreground hover:text-destructive"
-                  aria-label="Delete task"
-                  onClick={() => onPatch({ tasks: facet.tasks.filter((x) => x.id !== t.id) })}
-                >
-                  ✕
-                </button>
-              </li>
+              <TaskRow key={t.id} task={t} depth={0} />
             ))}
           </ul>
           <form
@@ -128,7 +130,12 @@ export function InformationFace({
             onSubmit={(e) => {
               e.preventDefault();
               if (!newTask.trim()) return;
-              onPatch({ tasks: [...facet.tasks, { id: uid(), text: newTask.trim(), done: false }] });
+              onPatch({
+                tasks: [
+                  ...facet.tasks,
+                  { id: uid(), text: newTask.trim(), done: false, subtasks: [] },
+                ],
+              });
               setNewTask("");
             }}
           >
@@ -156,8 +163,14 @@ export function InformationFace({
           />
         </div>
 
-        {/* Timing */}
+        {/* Last accessed beside due */}
         <div className="grid grid-cols-2 gap-2">
+          <div>
+            <span className="nw-label">Last accessed</span>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              {new Date(facet.lastAccessed).toLocaleString()}
+            </p>
+          </div>
           <label className="block">
             <span className="nw-label">Due</span>
             <input
@@ -168,34 +181,42 @@ export function InformationFace({
               aria-label="Due date and time"
             />
           </label>
-          <label className="block">
-            <span className="nw-label">Position name</span>
-            <input
-              className="nw-input mt-1"
-              value={positionLabel}
-              onChange={(e) => onPatch({ notes: facet.notes })}
-              readOnly
-              aria-label="Spatial position"
-            />
-          </label>
         </div>
 
+        {/* Unlimited reminders */}
         <div>
           <div className="flex items-center justify-between">
             <span className="nw-label">Reminders</span>
-            {facet.reminders.length < 3 && (
-              <button
-                className="text-[11px] text-primary hover:underline"
-                onClick={addReminder}
-                type="button"
-              >
-                + add
-              </button>
-            )}
+            <button
+              className="text-[11px] text-primary hover:underline"
+              type="button"
+              onClick={() =>
+                onPatch({
+                  reminders: [
+                    ...facet.reminders,
+                    { id: uid(), at: "", label: "Reminder" } as Reminder,
+                  ],
+                })
+              }
+            >
+              + add
+            </button>
           </div>
           <ul className="mt-1 space-y-1">
             {facet.reminders.map((r) => (
               <li key={r.id} className="flex gap-2">
+                <input
+                  className="nw-input max-w-[38%]"
+                  value={r.label}
+                  onChange={(e) =>
+                    onPatch({
+                      reminders: facet.reminders.map((x) =>
+                        x.id === r.id ? { ...x, label: e.target.value } : x,
+                      ),
+                    })
+                  }
+                  aria-label="Reminder label"
+                />
                 <input
                   type="datetime-local"
                   className="nw-input"
@@ -223,7 +244,7 @@ export function InformationFace({
           </ul>
           {facet.reminders.length > 0 && (
             <p className="mt-1 text-[10px] text-muted-foreground">
-              Prototype: reminders are stored locally — no system notifications are sent.
+              Reminders are stored on this device only — no system notifications are sent.
             </p>
           )}
         </div>
@@ -237,10 +258,6 @@ export function InformationFace({
           />
           Facet complete
         </label>
-
-        <p className="text-[10px] text-muted-foreground">
-          Last accessed {new Date(facet.lastAccessed).toLocaleString()}
-        </p>
       </div>
 
       <footer className="flex gap-2 border-t border-border/60 px-3 py-2">
@@ -251,10 +268,11 @@ export function InformationFace({
           Customize
         </button>
         <button
-          onClick={onSettings}
-          className="flex-1 rounded-lg border border-border bg-card/60 py-2 text-xs tracking-[0.16em] uppercase hover:bg-accent/25"
+          onClick={onClose}
+          data-testid="nw-save-continue"
+          className="flex-1 rounded-lg border border-primary/60 bg-primary/15 py-2 text-xs tracking-[0.16em] uppercase hover:bg-primary/25"
         >
-          Settings
+          Save &amp; continue
         </button>
       </footer>
     </div>

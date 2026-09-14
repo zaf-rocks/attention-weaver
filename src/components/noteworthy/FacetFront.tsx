@@ -11,11 +11,14 @@ const TYPE: Record<Scale, { title: string; tag: string; icon: string }> = {
   bar: { title: "text-[10px]", tag: "text-[9px]", icon: "text-[12px]" },
 };
 
-/** Clean front face: title, tagline, mark, concise status. No codes, no percentages. */
+/** Clean front face: title, short description, mark, concise status. No codes, no percentages. */
 export function FacetFront({ facet, scale }: { facet: Facet; scale: Scale }) {
   const t = TYPE[scale];
   const due = facet.due ? new Date(facet.due) : null;
-  const openTasks = facet.tasks.filter((x) => !x.done).length;
+  const countTasks = (list: Facet["tasks"]): number =>
+    list.reduce((n, x) => n + (x.done ? 0 : 1) + countTasks(x.subtasks), 0);
+  const openTasks = countTasks(facet.tasks);
+  const blurb = facet.description.split("\n")[0] ?? "";
 
   if (scale === "bar") {
     return (
@@ -27,7 +30,7 @@ export function FacetFront({ facet, scale }: { facet: Facet; scale: Scale }) {
           {facet.title}
         </span>
         <span className={cn(t.tag, "ml-auto shrink-0 truncate text-muted-foreground")}>
-          {facet.tagline}
+          {blurb}
         </span>
       </div>
     );
@@ -54,14 +57,14 @@ export function FacetFront({ facet, scale }: { facet: Facet; scale: Scale }) {
         <h3
           className={cn(
             t.title,
-            "truncate font-display leading-tight font-semibold tracking-wide",
+            "line-clamp-2 font-display leading-tight font-semibold tracking-wide",
             facet.complete && "line-through opacity-60",
           )}
         >
           {facet.title}
         </h3>
         {scale !== "sm" && (
-          <p className={cn(t.tag, "truncate text-muted-foreground")}>{facet.tagline}</p>
+          <p className={cn(t.tag, "line-clamp-2 text-muted-foreground")}>{blurb}</p>
         )}
       </div>
 
@@ -73,7 +76,6 @@ export function FacetFront({ facet, scale }: { facet: Facet; scale: Scale }) {
               {due.toLocaleDateString(undefined, { month: "short", day: "numeric" })}
             </span>
           )}
-          {facet.locked && <span className="ml-auto shrink-0 opacity-70">◼</span>}
         </div>
       )}
     </div>
