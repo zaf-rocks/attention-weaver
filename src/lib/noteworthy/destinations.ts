@@ -2,7 +2,8 @@ import type { Destination } from "./utility-types";
 
 export type ActionResult = { ok: boolean; message: string };
 
-export const canShare = () => typeof navigator !== "undefined" && typeof navigator.share === "function";
+export const canShare = () =>
+  typeof navigator !== "undefined" && typeof navigator.share === "function";
 export const canClipboard = () =>
   typeof navigator !== "undefined" && Boolean(navigator.clipboard?.writeText);
 

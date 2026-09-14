@@ -29,9 +29,7 @@ export type Snapshot = {
   utility: unknown;
 };
 
-export type ValidationResult =
-  | { ok: true; backup: BackupFile }
-  | { ok: false; error: string };
+export type ValidationResult = { ok: true; backup: BackupFile } | { ok: false; error: string };
 
 export type BackupSummary = {
   exportedAt: string;
@@ -44,6 +42,38 @@ export type BackupSummary = {
 
 const isObject = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null && !Array.isArray(v);
+
+const valueAt = (record: Record<string, unknown>, key: string): unknown => record[key];
+
+function hasReadableMain(main: unknown): boolean {
+  if (!isObject(main)) return false;
+  const facets = valueAt(main, "facets");
+  if (!isObject(facets)) return false;
+  const entries = Object.values(facets);
+  return (
+    entries.length >= 15 &&
+    entries.every(
+      (facet) =>
+        isObject(facet) &&
+        typeof valueAt(facet, "title") === "string" &&
+        Array.isArray(valueAt(facet, "tasks")),
+    )
+  );
+}
+
+function hasReadableUtility(utility: unknown): boolean {
+  if (!isObject(utility)) return false;
+  const tabs = valueAt(utility, "tabs");
+  const clips = valueAt(utility, "clips");
+  const draft = valueAt(utility, "draft");
+  return (
+    Array.isArray(tabs) &&
+    tabs.length > 0 &&
+    Array.isArray(clips) &&
+    isObject(draft) &&
+    typeof valueAt(draft, "text") === "string"
+  );
+}
 
 export function buildBackup(main: unknown, utility: unknown, at = new Date()): BackupFile {
   return {
@@ -59,36 +89,40 @@ export function buildBackup(main: unknown, utility: unknown, at = new Date()): B
 /** Strict, non-destructive validation. Anything unexpected is rejected with a plain message. */
 export function validateBackup(raw: unknown): ValidationResult {
   if (!isObject(raw)) return { ok: false, error: "That file isn't a Noteworthy backup." };
-  if (raw.kind !== BACKUP_KIND) {
+  if (valueAt(raw, "kind") !== BACKUP_KIND) {
     return { ok: false, error: "That file isn't a Noteworthy backup." };
   }
-  if (typeof raw.backupFormat !== "number") {
+  const backupFormat = valueAt(raw, "backupFormat");
+  if (typeof backupFormat !== "number") {
     return { ok: false, error: "This backup is missing its format version." };
   }
-  if (raw.backupFormat > BACKUP_FORMAT) {
+  if (backupFormat > BACKUP_FORMAT) {
     return {
       ok: false,
       error: "This backup was made by a newer version of Noteworthy. Nothing was changed.",
     };
   }
-  if (typeof raw.exportedAt !== "string" || Number.isNaN(Date.parse(raw.exportedAt))) {
+  const exportedAt = valueAt(raw, "exportedAt");
+  if (typeof exportedAt !== "string" || Number.isNaN(Date.parse(exportedAt))) {
     return { ok: false, error: "This backup has no readable export date." };
   }
-  if (!isObject(raw.main) || !isObject((raw.main as Record<string, unknown>).facets)) {
-    return { ok: false, error: "This backup has no readable field data." };
+  const main = valueAt(raw, "main");
+  if (!hasReadableMain(main)) {
+    return { ok: false, error: "This backup has incomplete or unreadable field data." };
   }
-  if (!isObject(raw.utility)) {
-    return { ok: false, error: "This backup has no readable repository data." };
+  const utility = valueAt(raw, "utility");
+  if (!hasReadableUtility(utility)) {
+    return { ok: false, error: "This backup has incomplete or unreadable repository data." };
   }
   return {
     ok: true,
     backup: {
       kind: BACKUP_KIND,
-      backupFormat: raw.backupFormat,
-      app: typeof raw.app === "string" ? raw.app : "Noteworthy",
-      exportedAt: raw.exportedAt,
-      main: raw.main,
-      utility: raw.utility,
+      backupFormat,
+      app: typeof valueAt(raw, "app") === "string" ? (valueAt(raw, "app") as string) : "Noteworthy",
+      exportedAt,
+      main,
+      utility,
     },
   };
 }
@@ -96,28 +130,34 @@ export function validateBackup(raw: unknown): ValidationResult {
 /** Human-readable preview shown before anything is replaced. */
 export function summarize(backup: BackupFile): BackupSummary {
   const main = isObject(backup.main) ? backup.main : {};
-  const facetsRaw = isObject(main.facets) ? main.facets : {};
+  const rawFacets = valueAt(main, "facets");
+  const facetsRaw = isObject(rawFacets) ? rawFacets : {};
   const facets = Object.values(facetsRaw);
   let tasks = 0;
   let reminders = 0;
+  const countTasks = (items: unknown[]): number =>
+    items.reduce<number>((total, task) => {
+      if (!isObject(task)) return total;
+      const children = valueAt(task, "subtasks");
+      return total + 1 + (Array.isArray(children) ? countTasks(children) : 0);
+    }, 0);
   for (const f of facets) {
     if (!isObject(f)) continue;
-    if (Array.isArray(f.tasks)) {
-      for (const t of f.tasks) {
-        tasks += 1;
-        if (isObject(t) && Array.isArray(t.subtasks)) tasks += t.subtasks.length;
-      }
-    }
-    if (Array.isArray(f.reminders)) reminders += f.reminders.length;
+    const facetTasks = valueAt(f, "tasks");
+    const facetReminders = valueAt(f, "reminders");
+    if (Array.isArray(facetTasks)) tasks += countTasks(facetTasks);
+    if (Array.isArray(facetReminders)) reminders += facetReminders.length;
   }
   const util = isObject(backup.utility) ? backup.utility : {};
+  const tabs = valueAt(util, "tabs");
+  const clips = valueAt(util, "clips");
   return {
     exportedAt: backup.exportedAt,
     facets: facets.length,
     tasks,
     reminders,
-    tabs: Array.isArray(util.tabs) ? util.tabs.length : 0,
-    clips: Array.isArray(util.clips) ? util.clips.length : 0,
+    tabs: Array.isArray(tabs) ? tabs.length : 0,
+    clips: Array.isArray(clips) ? clips.length : 0,
   };
 }
 
@@ -177,12 +217,14 @@ export function takeSnapshot(reason: string): Snapshot {
 
 export function readSnapshot(): Snapshot | null {
   const raw = readKey(SNAPSHOT_KEY);
-  if (!isObject(raw) || typeof raw.takenAt !== "string") return null;
+  if (!isObject(raw) || typeof valueAt(raw, "takenAt") !== "string") return null;
+  const takenAt = valueAt(raw, "takenAt") as string;
+  const reason = valueAt(raw, "reason");
   return {
-    takenAt: raw.takenAt,
-    reason: typeof raw.reason === "string" ? raw.reason : "unknown",
-    main: raw.main ?? null,
-    utility: raw.utility ?? null,
+    takenAt,
+    reason: typeof reason === "string" ? reason : "unknown",
+    main: valueAt(raw, "main") ?? null,
+    utility: valueAt(raw, "utility") ?? null,
   };
 }
 
@@ -194,8 +236,12 @@ export function applyBackup(backup: BackupFile) {
 }
 
 export function restoreSnapshot(snap: Snapshot) {
-  if (snap.main !== null) window.localStorage.setItem(MAIN_KEY, JSON.stringify(snap.main));
-  if (snap.utility !== null) window.localStorage.setItem(UTILITY_KEY, JSON.stringify(snap.utility));
+  // Preserve the current state as the new recovery point before replacing it.
+  takeSnapshot("before recovery restore");
+  if (snap.main === null) window.localStorage.removeItem(MAIN_KEY);
+  else window.localStorage.setItem(MAIN_KEY, JSON.stringify(snap.main));
+  if (snap.utility === null) window.localStorage.removeItem(UTILITY_KEY);
+  else window.localStorage.setItem(UTILITY_KEY, JSON.stringify(snap.utility));
 }
 
 export function lastBackupAt(): string | null {

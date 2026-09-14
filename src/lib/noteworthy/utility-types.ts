@@ -43,12 +43,7 @@ export type DraftSnapshot = {
 };
 
 export type DestinationKind =
-  | "repository"
-  | "clipboard"
-  | "share"
-  | "email"
-  | "websearch"
-  | "custom";
+  "repository" | "clipboard" | "share" | "email" | "websearch" | "custom";
 
 export type Destination = {
   id: string;

@@ -8,11 +8,10 @@ import type {
   UtilityState,
 } from "./utility-types";
 import { HISTORY_LIMIT, UTILITY_VERSION, createInitialUtilityState, uid } from "./utility-initial";
-
-const KEY = "noteworthy.utility.v1";
+import { UTILITY_KEY } from "./backup";
 
 /** Tolerant merge: unknown/missing fields fall back to defaults, nothing is dropped. */
-function migrate(raw: unknown): UtilityState {
+export function migrateUtilityState(raw: unknown): UtilityState {
   const base = createInitialUtilityState();
   if (!raw || typeof raw !== "object") return base;
   const p = raw as Partial<UtilityState>;
@@ -49,8 +48,8 @@ function migrate(raw: unknown): UtilityState {
 function load(): UtilityState {
   if (typeof window === "undefined") return createInitialUtilityState();
   try {
-    const raw = window.localStorage.getItem(KEY);
-    return raw ? migrate(JSON.parse(raw)) : createInitialUtilityState();
+    const raw = window.localStorage.getItem(UTILITY_KEY);
+    return raw ? migrateUtilityState(JSON.parse(raw)) : createInitialUtilityState();
   } catch {
     return createInitialUtilityState();
   }
@@ -60,6 +59,7 @@ const now = () => new Date().toISOString();
 
 export function useUtility() {
   const [state, setState] = useState<UtilityState>(() => createInitialUtilityState());
+  const [savedAt, setSavedAt] = useState<string | null>(null);
   const hydrated = useRef(false);
 
   useEffect(() => {
@@ -70,7 +70,8 @@ export function useUtility() {
   useEffect(() => {
     if (!hydrated.current) return;
     try {
-      window.localStorage.setItem(KEY, JSON.stringify(state));
+      window.localStorage.setItem(UTILITY_KEY, JSON.stringify(state));
+      setSavedAt(now());
     } catch {
       /* storage unavailable */
     }
@@ -111,7 +112,10 @@ export function useUtility() {
     });
   }, []);
 
-  const setActiveTab = useCallback((id: string) => setState((s) => ({ ...s, activeTabId: id })), []);
+  const setActiveTab = useCallback(
+    (id: string) => setState((s) => ({ ...s, activeTabId: id })),
+    [],
+  );
 
   /* ---------------- clips ---------------- */
   const addClip = useCallback((tabId: string, patch?: Partial<Clip>) => {
@@ -153,7 +157,14 @@ export function useUtility() {
       return {
         ...s,
         clips: [
-          { ...src, id: uid("clip"), title: `${src.title} (copy)`, createdAt: stamp, updatedAt: stamp, lastUsedAt: null },
+          {
+            ...src,
+            id: uid("clip"),
+            title: `${src.title} (copy)`,
+            createdAt: stamp,
+            updatedAt: stamp,
+            lastUsedAt: null,
+          },
           ...s.clips,
         ],
       };
@@ -197,22 +208,19 @@ export function useUtility() {
     }));
   }, []);
 
-  const patchReminder = useCallback(
-    (clipId: string, remId: string, patch: Partial<Reminder>) => {
-      setState((s) => ({
-        ...s,
-        clips: s.clips.map((c) =>
-          c.id === clipId
-            ? {
-                ...c,
-                reminders: c.reminders.map((r) => (r.id === remId ? { ...r, ...patch } : r)),
-              }
-            : c,
-        ),
-      }));
-    },
-    [],
-  );
+  const patchReminder = useCallback((clipId: string, remId: string, patch: Partial<Reminder>) => {
+    setState((s) => ({
+      ...s,
+      clips: s.clips.map((c) =>
+        c.id === clipId
+          ? {
+              ...c,
+              reminders: c.reminders.map((r) => (r.id === remId ? { ...r, ...patch } : r)),
+            }
+          : c,
+      ),
+    }));
+  }, []);
 
   const removeReminder = useCallback((clipId: string, remId: string) => {
     setState((s) => ({
@@ -296,8 +304,12 @@ export function useUtility() {
     });
   }, []);
 
+  /** Re-read localStorage after an import or recovery restore. */
+  const reloadFromStorage = useCallback(() => setState(load()), []);
+
   return {
     utility: state,
+    savedAt,
     addTab,
     patchTab,
     deleteTab,
@@ -320,6 +332,7 @@ export function useUtility() {
     addCustomDestination,
     removeDestination,
     moveDestination,
+    reloadFromStorage,
   };
 }
 

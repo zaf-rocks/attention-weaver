@@ -284,7 +284,9 @@ export function RepositoryWorkspace({ api, onClose }: { api: UtilityApi; onClose
               })}
               <button
                 onClick={() => {
-                  const d = new Date(Date.now() + 60 * 60 * 1000 - new Date().getTimezoneOffset() * 60000);
+                  const d = new Date(
+                    Date.now() + 60 * 60 * 1000 - new Date().getTimezoneOffset() * 60000,
+                  );
                   api.addReminder(c.id, d.toISOString().slice(0, 16), "");
                 }}
                 className="rounded border border-border/70 px-1.5 py-0.5 text-[9px]"
