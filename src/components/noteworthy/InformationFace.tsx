@@ -41,14 +41,18 @@ export function InformationFace({
         <input
           type="checkbox"
           checked={task.done}
-          onChange={(e) => onPatch({ tasks: patchIn(facet.tasks, task.id, { done: e.target.checked }) })}
+          onChange={(e) =>
+            onPatch({ tasks: patchIn(facet.tasks, task.id, { done: e.target.checked }) })
+          }
           className="h-4 w-4 shrink-0 accent-[var(--primary)]"
           aria-label={`Complete ${task.text}`}
         />
         <input
           className={`nw-input ${task.done ? "line-through opacity-60" : ""}`}
           value={task.text}
-          onChange={(e) => onPatch({ tasks: patchIn(facet.tasks, task.id, { text: e.target.value }) })}
+          onChange={(e) =>
+            onPatch({ tasks: patchIn(facet.tasks, task.id, { text: e.target.value }) })
+          }
           aria-label="Task text"
         />
         {depth < 2 && (

@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import type { Facet } from "@/lib/noteworthy/types";
 import { facetVars } from "./FacetSurface";
-import { centeredTargetRect, REDUCED_MS, TRAVEL_EASING, TRAVEL_MS, type Rect } from "@/lib/noteworthy/transform";
+import {
+  centeredTargetRect,
+  REDUCED_MS,
+  TRAVEL_EASING,
+  TRAVEL_MS,
+  type Rect,
+} from "@/lib/noteworthy/transform";
 
 /**
  * Shared physical-selection primitive for the utility bars.

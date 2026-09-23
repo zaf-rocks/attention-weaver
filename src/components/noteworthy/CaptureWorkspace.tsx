@@ -254,7 +254,9 @@ export function CaptureWorkspace({ api, onClose }: { api: UtilityApi; onClose: (
                         Remove
                       </button>
                     )}
-                    <span className={`text-[8px] ${d.kind === "custom" ? "" : "ml-auto"} text-muted-foreground`}>
+                    <span
+                      className={`text-[8px] ${d.kind === "custom" ? "" : "ml-auto"} text-muted-foreground`}
+                    >
                       {blocked ?? `#${i + 1} available`}
                     </span>
                   </div>
