@@ -1,11 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Facet, FieldSettings } from "@/lib/noteworthy/types";
-import { FIELD_EFFECTS } from "@/lib/noteworthy/effects";
 import { facetVars } from "./FacetSurface";
 import { FacetFront } from "./FacetFront";
 import { InformationFace } from "./InformationFace";
 import { CustomizeFace } from "./CustomizeFace";
-import { EffectPicker, Slider } from "./EffectPicker";
 import {
   centeredTargetRect,
   ENTRANCE_ROTATION,
@@ -17,31 +15,21 @@ import {
   type Rect,
 } from "@/lib/noteworthy/transform";
 
-type Mode = "info" | "customize" | "settings";
+type Mode = "info" | "customize";
 type Phase = "depart" | "travel" | "arrived" | "returning";
 
 export function FacetOverlay({
   facet,
-  positionLabel,
   settings,
   sourceRect,
   onPatch,
-  onNotch,
-  notice,
-  onSettings,
   onClose,
-  onReset,
 }: {
   facet: Facet;
-  positionLabel: string;
   settings: FieldSettings;
   sourceRect: Rect;
   onPatch: (patch: Partial<Facet>) => void;
-  onNotch: (notch: number) => void;
-  notice: string | null;
-  onSettings: (patch: Partial<FieldSettings>) => void;
   onClose: () => void;
-  onReset: () => void;
 }) {
   const reduced = settings.reducedMotion;
   const [mode, setMode] = useState<Mode>("info");
@@ -186,13 +174,9 @@ export function FacetOverlay({
               <div className="relative z-[3] h-full">
                 <InformationFace
                   facet={facet}
-                  positionLabel={positionLabel}
                   onPatch={onPatch}
-                  onNotch={onNotch}
-                  notice={notice}
                   onClose={close}
                   onCustomize={() => toMode("customize")}
-                  onSettings={() => toMode("settings")}
                 />
               </div>
             </div>
@@ -207,68 +191,12 @@ export function FacetOverlay({
             >
               <div className={`nw-perimeter pfx-${facet.perimeterEffect}`} aria-hidden />
               <div className="relative z-[3] h-full">
-                {mode === "settings" ? (
-                  <div className="flex h-full flex-col">
-                    <header className="flex items-center gap-2 border-b border-border/60 px-3 py-2">
-                      <button
-                        onClick={() => toMode("info")}
-                        className="rounded-lg border border-border px-2 py-1 text-xs hover:bg-accent/25"
-                      >
-                        ‹ Information
-                      </button>
-                      <span className="nw-label ml-auto">Field settings</span>
-                      <button
-                        onClick={close}
-                        aria-label="Return to field"
-                        className="grid h-8 w-8 place-items-center rounded-full border border-border bg-card/70 text-sm"
-                      >
-                        ✕
-                      </button>
-                    </header>
-                    <div className="nw-scroll flex-1 space-y-3 px-3 py-3">
-                      <label className="flex items-center gap-2 text-xs">
-                        <input
-                          type="checkbox"
-                          className="h-4 w-4 accent-[var(--primary)]"
-                          checked={settings.reducedMotion}
-                          onChange={(e) => onSettings({ reducedMotion: e.target.checked })}
-                        />
-                        Reduced motion
-                      </label>
-                      <Slider
-                        label="Ambient motion"
-                        value={settings.ambientMotion}
-                        onChange={(v) => onSettings({ ambientMotion: v })}
-                        suffix="%"
-                      />
-                      <Slider
-                        label="Depth intensity"
-                        value={settings.depth}
-                        onChange={(v) => onSettings({ depth: v })}
-                        suffix="%"
-                      />
-                      <EffectPicker
-                        label="Field effect"
-                        options={FIELD_EFFECTS}
-                        value={settings.fieldEffect}
-                        onChange={(v) => onSettings({ fieldEffect: v })}
-                      />
-                      <button
-                        onClick={onReset}
-                        className="w-full rounded-lg border border-destructive/60 py-2 text-xs tracking-widest text-destructive uppercase"
-                      >
-                        Reset field
-                      </button>
-                    </div>
-                  </div>
-                ) : (
                   <CustomizeFace
                     facet={facet}
                     onPatch={onPatch}
                     onBack={() => toMode("info")}
                     onClose={close}
                   />
-                )}
               </div>
             </div>
           )}
