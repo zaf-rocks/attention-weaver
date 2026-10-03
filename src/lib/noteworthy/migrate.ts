@@ -1,8 +1,7 @@
 import type { Facet, NoteworthyState, SlotId, Task } from "./types";
 import { POSITION_NAMES, STATE_VERSION, createInitialState } from "./initial";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const isObject = (v: unknown): v is any =>
+const isObject = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null && !Array.isArray(v);
 
 const str = (v: unknown, fallback = ""): string => (typeof v === "string" ? v : fallback);
