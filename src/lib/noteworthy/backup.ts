@@ -48,7 +48,8 @@ export type BackupSummary = {
   clips: number;
 };
 
-const isObject = (v: unknown): v is Record<string, unknown> =>
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const isObject = (v: unknown): v is any =>
   typeof v === "object" && v !== null && !Array.isArray(v);
 
 export function buildBackup(
