@@ -9,6 +9,8 @@ export const MAIN_KEY = "noteworthy.v1";
 export const UTILITY_KEY = "noteworthy.utility.v1";
 export const SNAPSHOT_KEY = "noteworthy.recovery.v1";
 export const LAST_BACKUP_KEY = "noteworthy.lastBackupAt";
+export const HUB_KEY = "noteworthy.hub.v1";
+export const BOARD_KEY = "noteworthy.board.v1";
 
 export const BACKUP_KIND = "noteworthy.backup";
 export const BACKUP_FORMAT = 1;
@@ -20,6 +22,8 @@ export type BackupFile = {
   exportedAt: string;
   main: unknown;
   utility: unknown;
+  hub?: unknown;
+  board?: unknown;
 };
 
 export type Snapshot = {
@@ -27,6 +31,8 @@ export type Snapshot = {
   reason: string;
   main: unknown;
   utility: unknown;
+  hub?: unknown;
+  board?: unknown;
 };
 
 export type ValidationResult =
@@ -45,7 +51,13 @@ export type BackupSummary = {
 const isObject = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null && !Array.isArray(v);
 
-export function buildBackup(main: unknown, utility: unknown, at = new Date()): BackupFile {
+export function buildBackup(
+  main: unknown,
+  utility: unknown,
+  at = new Date(),
+  hub: unknown = null,
+  board: unknown = null,
+): BackupFile {
   return {
     kind: BACKUP_KIND,
     backupFormat: BACKUP_FORMAT,
@@ -53,6 +65,8 @@ export function buildBackup(main: unknown, utility: unknown, at = new Date()): B
     exportedAt: at.toISOString(),
     main,
     utility,
+    hub,
+    board,
   };
 }
 
@@ -77,7 +91,7 @@ export function validateBackup(raw: unknown): ValidationResult {
   if (!isObject(raw.main) || !isObject((raw.main as Record<string, unknown>).facets)) {
     return { ok: false, error: "This backup has no readable field data." };
   }
-  if (!isObject(raw.utility)) {
+  if (!isObject(raw.utility) && !isObject(raw.hub)) {
     return { ok: false, error: "This backup has no readable repository data." };
   }
   return {
@@ -88,7 +102,9 @@ export function validateBackup(raw: unknown): ValidationResult {
       app: typeof raw.app === "string" ? raw.app : "Noteworthy",
       exportedAt: raw.exportedAt,
       main: raw.main,
-      utility: raw.utility,
+      utility: isObject(raw.utility) ? raw.utility : {},
+      hub: isObject(raw.hub) ? raw.hub : null,
+      board: isObject(raw.board) ? raw.board : null,
     },
   };
 }
@@ -117,7 +133,9 @@ export function summarize(backup: BackupFile): BackupSummary {
     tasks,
     reminders,
     tabs: Array.isArray(util.tabs) ? util.tabs.length : 0,
-    clips: Array.isArray(util.clips) ? util.clips.length : 0,
+    clips:
+      (Array.isArray(util.clips) ? util.clips.length : 0) +
+      (isObject(backup.hub) && Array.isArray(backup.hub.entries) ? backup.hub.entries.length : 0),
   };
 }
 
@@ -140,7 +158,13 @@ const readKey = (key: string): unknown => {
 };
 
 export function currentBackup(): BackupFile {
-  return buildBackup(readKey(MAIN_KEY), readKey(UTILITY_KEY));
+  return buildBackup(
+    readKey(MAIN_KEY),
+    readKey(UTILITY_KEY),
+    new Date(),
+    readKey(HUB_KEY),
+    readKey(BOARD_KEY),
+  );
 }
 
 export function downloadBackup(): string {
@@ -166,6 +190,8 @@ export function takeSnapshot(reason: string): Snapshot {
     reason,
     main: readKey(MAIN_KEY),
     utility: readKey(UTILITY_KEY),
+    hub: readKey(HUB_KEY),
+    board: readKey(BOARD_KEY),
   };
   try {
     window.localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(snap));
@@ -183,6 +209,8 @@ export function readSnapshot(): Snapshot | null {
     reason: typeof raw.reason === "string" ? raw.reason : "unknown",
     main: raw.main ?? null,
     utility: raw.utility ?? null,
+    hub: raw.hub ?? null,
+    board: raw.board ?? null,
   };
 }
 
@@ -191,11 +219,15 @@ export function applyBackup(backup: BackupFile) {
   takeSnapshot("before import");
   window.localStorage.setItem(MAIN_KEY, JSON.stringify(backup.main));
   window.localStorage.setItem(UTILITY_KEY, JSON.stringify(backup.utility));
+  if (backup.hub) window.localStorage.setItem(HUB_KEY, JSON.stringify(backup.hub));
+  if (backup.board) window.localStorage.setItem(BOARD_KEY, JSON.stringify(backup.board));
 }
 
 export function restoreSnapshot(snap: Snapshot) {
   if (snap.main !== null) window.localStorage.setItem(MAIN_KEY, JSON.stringify(snap.main));
   if (snap.utility !== null) window.localStorage.setItem(UTILITY_KEY, JSON.stringify(snap.utility));
+  if (snap.hub) window.localStorage.setItem(HUB_KEY, JSON.stringify(snap.hub));
+  if (snap.board) window.localStorage.setItem(BOARD_KEY, JSON.stringify(snap.board));
 }
 
 export function lastBackupAt(): string | null {

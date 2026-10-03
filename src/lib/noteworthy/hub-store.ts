@@ -192,7 +192,6 @@ export function useHub() {
     const stamp = now();
     const entry: HubEntry = {
       id: uid("entry"),
-      letter,
       title: "Untitled entry",
       body: "",
       pinned: false,

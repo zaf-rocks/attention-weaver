@@ -37,7 +37,7 @@ type Seed = {
 const SEEDS: Seed[] = [
   {
     id: "UTIL_TOP",
-    title: "Prompt Repository",
+    title: "Repository",
     description: "Clipboard, prompts and saved clips.",
     icon: "◈",
     body: ["#0b1220", "#131a2e"],
@@ -182,8 +182,8 @@ const SEEDS: Seed[] = [
   },
   {
     id: "UTIL_BOTTOM",
-    title: "Capture Dock",
-    description: "Autosaving quick capture.",
+    title: "Corkboard",
+    description: "Twelve Post-it notes and quick thoughts.",
     icon: "▣",
     body: ["#0b1220", "#131a2e"],
     perimeter: ["#c04bff", "#5ef2ff"],
