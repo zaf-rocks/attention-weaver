@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Facet } from "@/lib/noteworthy/types";
-import type { HubState } from "@/lib/noteworthy/hub-types";
+import type { HubLetter, HubState } from "@/lib/noteworthy/hub-types";
+import { entriesOf } from "@/lib/noteworthy/hub-store";
 import { FacetSurface } from "./FacetSurface";
 
 /**
@@ -57,6 +58,20 @@ export function HubBar({
 
   const entries = hub.entries.length;
 
+  // A1-style code lookup: only fires when the text contains a valid code as a
+  // standalone token — ordinary prose is never hijacked.
+  const lookup = useMemo(() => {
+    const m = /(?:^|[\s,.:;!?()"'-])([A-K])([1-9][0-9]?)(?=$|[\s,.:;!?()"'-])/.exec(text);
+    if (!m) return null;
+    const letter = m[1] as HubLetter;
+    const idx = Number(m[2]) - 1;
+    const entriesInTab = entriesOf(hub, letter);
+    const entry = entriesInTab[idx];
+    if (!entry) return null;
+    const tab = hub.tabs.find((t) => t.letter === letter)!;
+    return { code: `${letter}${idx + 1}`, entry, color: tab.color };
+  }, [text, hub]);
+
   return (
     <div
       ref={wrap}
@@ -81,19 +96,43 @@ export function HubBar({
                 setStatus("saved");
               }}
             >
-              <input
-                ref={input}
-                data-testid="nw-hub-quick"
-                aria-label="Quick entry — autosaves, saves into Tab A"
-                placeholder="Capture into Tab A…"
-                value={text}
-                onChange={(e) => {
-                  dirty.current = true;
-                  setText(e.target.value);
-                }}
-                onKeyDown={(e) => e.key === "Escape" && setCapturing(false)}
-                className="min-w-0 flex-1 bg-transparent text-[11px] text-foreground placeholder:text-muted-foreground/70 focus:outline-none"
-              />
+              <div className="relative min-w-0 flex-1">
+                <input
+                  ref={input}
+                  data-testid="nw-hub-quick"
+                  aria-label="Quick entry — autosaves, saves into Tab A"
+                  placeholder="Capture into Tab A…"
+                  value={text}
+                  onChange={(e) => {
+                    dirty.current = true;
+                    setText(e.target.value);
+                  }}
+                  onKeyDown={(e) => e.key === "Escape" && setCapturing(false)}
+                  className="min-w-0 w-full bg-transparent text-[11px] text-foreground placeholder:text-muted-foreground/70 focus:outline-none"
+                />
+                {lookup && (
+                  <div
+                    data-testid="nw-hub-lookup"
+                    className="absolute left-0 right-0 top-full z-20 mt-1 overflow-hidden rounded-md border bg-card/95 px-2 py-1 shadow-lg backdrop-blur"
+                    style={{ borderColor: `${lookup.color}88` }}
+                  >
+                    <div className="flex min-w-0 items-center gap-2">
+                      <span
+                        className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold"
+                        style={{ background: `${lookup.color}26`, color: lookup.color }}
+                      >
+                        {lookup.code}
+                      </span>
+                      <span className="min-w-0 flex-1 truncate text-[11px] text-foreground">
+                        {lookup.entry.title || "Untitled entry"}
+                      </span>
+                      <span className="shrink-0 max-w-[45%] truncate text-[9px] text-muted-foreground">
+                        {lookup.entry.body}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
               <span
                 aria-live="polite"
                 className="shrink-0 text-[8px] tracking-widest text-muted-foreground uppercase"
