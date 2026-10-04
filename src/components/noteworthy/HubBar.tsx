@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Facet } from "@/lib/noteworthy/types";
-import type { HubState } from "@/lib/noteworthy/hub-types";
+import type { HubLetter, HubState } from "@/lib/noteworthy/hub-types";
+import { entriesOf } from "@/lib/noteworthy/hub-store";
 import { FacetSurface } from "./FacetSurface";
 
 /**
@@ -56,6 +57,20 @@ export function HubBar({
   }, [capturing]);
 
   const entries = hub.entries.length;
+
+  // A1-style code lookup: only fires when the text contains a valid code as a
+  // standalone token — ordinary prose is never hijacked.
+  const lookup = useMemo(() => {
+    const m = /(?:^|[\s,.:;!?()"'-])([A-K])([1-9][0-9]?)(?=$|[\s,.:;!?()"'-])/.exec(text);
+    if (!m) return null;
+    const letter = m[1] as HubLetter;
+    const idx = Number(m[2]) - 1;
+    const entriesInTab = entriesOf(hub, letter);
+    const entry = entriesInTab[idx];
+    if (!entry) return null;
+    const tab = hub.tabs.find((t) => t.letter === letter)!;
+    return { code: `${letter}${idx + 1}`, entry, color: tab.color };
+  }, [text, hub]);
 
   return (
     <div
