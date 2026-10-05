@@ -53,6 +53,10 @@ export type Facet = {
   body: Gradient;
   perimeter: Gradient;
   perimeterEffect: string;
+  /** Interior (body) effect, independent of the perimeter. */
+  bodyEffect: string;
+  /** Hue-cycles the perimeter on top of any perimeter effect. */
+  colorShift: boolean;
   glow: number; // 0..100
   motion: number; // 0..100
   effectSpeed: number; // 0..100

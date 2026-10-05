@@ -1,3 +1,4 @@
+import { normalizePerimeter } from "./effects";
 import type { Facet, NoteworthyState, SlotId } from "./types";
 
 export const STATE_VERSION = 3;
@@ -210,7 +211,9 @@ const makeFacet = (s: Seed): Facet => ({
   reminders: [],
   body: { a: s.body[0], b: s.body[1] },
   perimeter: { a: s.perimeter[0], b: s.perimeter[1] },
-  perimeterEffect: s.effect,
+  perimeterEffect: normalizePerimeter(s.effect),
+  bodyEffect: "none",
+  colorShift: false,
   glow: 55,
   motion: 45,
   effectSpeed: 45,

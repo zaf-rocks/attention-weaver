@@ -1,4 +1,5 @@
 import type { Facet, NoteworthyState, SlotId, Task } from "./types";
+import { normalizeBody, normalizePerimeter } from "./effects";
 import { POSITION_NAMES, STATE_VERSION, createInitialState } from "./initial";
 
 const isObject = (v: unknown): v is Record<string, unknown> =>
@@ -80,7 +81,9 @@ function migrateFacet(base: Facet, stored: unknown): Facet {
       a: str(perimeter.a, base.perimeter.a),
       b: str(perimeter.b, base.perimeter.b),
     },
-    perimeterEffect: str(stored.perimeterEffect, base.perimeterEffect),
+    perimeterEffect: normalizePerimeter(str(stored.perimeterEffect, base.perimeterEffect)),
+    bodyEffect: normalizeBody(stored.bodyEffect),
+    colorShift: Boolean(stored.colorShift),
     glow: num(stored.glow, base.glow),
     motion: num(stored.motion, base.motion),
     effectSpeed: num(stored.effectSpeed, base.effectSpeed),
