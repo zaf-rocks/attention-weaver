@@ -665,3 +665,12 @@
   text-transform: uppercase;
   color: var(--muted-foreground);
 }
+
+/* Large spectral facet titles */
+.nw-title {
+  background: linear-gradient(100deg, oklch(0.98 0.01 260) 0%, oklch(0.98 0.01 260) 35%, color-mix(in oklab, var(--per-a) 70%, white) 75%, color-mix(in oklab, var(--per-b) 70%, white) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 1px 6px color-mix(in oklab, var(--per-a) 45%, transparent));
+}
