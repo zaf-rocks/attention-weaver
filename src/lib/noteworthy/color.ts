@@ -7,7 +7,7 @@ const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n
 export function hexToHsva(hex: string): HSVA | null {
   const m = /^#?([0-9a-f]{6})([0-9a-f]{2})?$/i.exec(hex.trim());
   if (!m) return null;
-  const int = Number.parseInt(m[1], 16);
+  const int = Number.parseInt(m[1] ?? "000000", 16);
   const r = ((int >> 16) & 255) / 255;
   const g = ((int >> 8) & 255) / 255;
   const b = (int & 255) / 255;
