@@ -258,50 +258,37 @@
   --spd: calc(9s - var(--speed, 0.5) * 6s);
 }
 
-/* --- perimeter effects --- */
-.pfx-prismatic::before {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  border: 1.5px solid transparent;
-  background: linear-gradient(120deg, var(--per-a), var(--per-b), var(--per-a)) border-box;
-  mask:
-    linear-gradient(#000 0 0) padding-box exclude,
-    linear-gradient(#000 0 0);
-  -webkit-mask:
-    linear-gradient(#000 0 0) padding-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  filter: blur(1.2px);
-  animation: nw-bleed var(--spd) ease-in-out infinite alternate;
-}
-@keyframes nw-bleed {
-  from {
-    opacity: 0.25;
-  }
-  to {
-    opacity: 0.95;
-  }
+/* --- perimeter effects (consolidated, dramatic) --- */
+.nw-perimeter::before,
+.nw-perimeter::after {
+  pointer-events: none;
 }
 
-.pfx-marquee::before,
-.pfx-lasers::before {
+/* Plasma Chase: a concentrated plasma ball with a chromatic comet trail. */
+.pfx-plasma::before {
   content: "";
   position: absolute;
-  inset: -40%;
+  inset: -60%;
   background: conic-gradient(
     from 0deg,
-    transparent 0 72%,
-    var(--per-a) 84%,
-    var(--per-b) 92%,
+    transparent 0 58%,
+    color-mix(in oklab, var(--per-b) 35%, transparent) 74%,
+    var(--per-b) 86%,
+    var(--per-a) 95%,
+    oklch(1 0 0) 98.5%,
     transparent 100%
   );
-  animation: nw-spin var(--spd) linear infinite;
-  mask: radial-gradient(farthest-side, transparent 62%, #000 74%);
+  animation: nw-spin calc(var(--spd) * 0.42) linear infinite;
+  mask: radial-gradient(farthest-side, transparent 64%, #000 70%, #000 74%, transparent 76%);
+  -webkit-mask: radial-gradient(farthest-side, transparent 64%, #000 70%, #000 74%, transparent 76%);
+  filter: drop-shadow(0 0 6px var(--per-a)) drop-shadow(0 0 14px var(--per-b));
 }
-.pfx-lasers::before {
-  animation-duration: calc(var(--spd) * 0.5);
+.pfx-plasma::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--per-a) 35%, transparent);
 }
 @keyframes nw-spin {
   to {
@@ -309,231 +296,250 @@
   }
 }
 
-.pfx-nodes::before,
-.pfx-nodes::after {
-  content: "";
-  position: absolute;
-  width: 7px;
-  height: 7px;
-  border-radius: 99px;
-  background: var(--per-a);
-  box-shadow: 0 0 10px var(--per-a);
-  top: 4px;
-  left: 4px;
-  animation: nw-node var(--spd) ease-in-out infinite;
-}
-.pfx-nodes::after {
-  top: auto;
-  left: auto;
-  right: 4px;
-  bottom: 4px;
-  background: var(--per-b);
-  box-shadow: 0 0 10px var(--per-b);
-  animation-delay: calc(var(--spd) / 2);
-}
-@keyframes nw-node {
-  0%,
-  82%,
-  100% {
-    opacity: 0.15;
-  }
-  88% {
-    opacity: 1;
-  }
-}
-
-.pfx-glitch::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  border-top: 1.5px solid var(--per-a);
-  border-bottom: 1.5px solid var(--per-b);
-  animation: nw-glitch calc(var(--spd) * 0.8) steps(1, end) infinite;
-}
-@keyframes nw-glitch {
-  0%,
-  70%,
-  100% {
-    opacity: 0.2;
-    transform: translateX(0);
-  }
-  74% {
-    opacity: 1;
-    transform: translateX(2px);
-  }
-  78% {
-    opacity: 0.4;
-    transform: translateX(-2px);
-  }
-  82% {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.pfx-aura::before,
-.pfx-breathe::before,
-.pfx-pulse::before,
-.pfx-shockwave::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  box-shadow:
-    0 0 16px color-mix(in oklab, var(--per-a) 55%, transparent),
-    inset 0 0 12px color-mix(in oklab, var(--per-b) 35%, transparent);
-  animation: nw-breathe var(--spd) ease-in-out infinite alternate;
-}
-.pfx-pulse::before {
-  animation-duration: calc(var(--spd) * 0.45);
-}
-.pfx-shockwave::before {
-  animation: nw-shock calc(var(--spd) * 1.1) cubic-bezier(0.22, 1, 0.36, 1) infinite;
-}
-@keyframes nw-breathe {
-  from {
-    opacity: 0.25;
-  }
-  to {
-    opacity: 1;
-  }
-}
-@keyframes nw-shock {
-  0% {
-    opacity: 0.15;
-    transform: scale(0.985);
-  }
-  55% {
-    opacity: 0.9;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0.15;
-    transform: scale(0.985);
-  }
-}
-
-.pfx-datastream::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: repeating-linear-gradient(
-    90deg,
-    color-mix(in oklab, var(--per-a) 70%, transparent) 0 6px,
-    transparent 6px 16px
-  );
-  height: 2px;
-  top: auto;
-  bottom: 0;
-  animation: nw-stream var(--spd) linear infinite;
-}
-@keyframes nw-stream {
-  to {
-    background-position: 64px 0;
-  }
-}
-
-.pfx-glint::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(
-    115deg,
-    transparent 40%,
-    oklch(1 0 0 / 0.5) 48%,
-    color-mix(in oklab, var(--per-b) 70%, transparent) 52%,
-    transparent 60%
-  );
-  transform: translateX(-120%);
-  animation: nw-glint calc(var(--spd) * 1.4) ease-in-out infinite;
-}
-@keyframes nw-glint {
-  0%,
-  70% {
-    transform: translateX(-120%);
-  }
-  100% {
-    transform: translateX(120%);
-  }
-}
-
-.pfx-burn::before,
-.pfx-embers::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  box-shadow: inset 0 -10px 18px -10px var(--per-a);
-  animation: nw-burn calc(var(--spd) * 0.6) ease-in-out infinite alternate;
-}
-@keyframes nw-burn {
-  from {
-    opacity: 0.3;
-    filter: hue-rotate(-8deg);
-  }
-  to {
-    opacity: 1;
-    filter: hue-rotate(8deg);
-  }
-}
-
-.pfx-electric::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  border: 1px solid var(--per-a);
-  opacity: 0.2;
-  animation: nw-electric calc(var(--spd) * 0.35) steps(2, end) infinite;
-}
-@keyframes nw-electric {
-  0%,
-  60%,
-  100% {
-    opacity: 0.15;
-  }
-  70% {
-    opacity: 0.9;
-  }
-  80% {
-    opacity: 0.3;
-  }
-}
-
-.pfx-strobe::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  box-shadow: inset 0 0 0 1.5px var(--per-b);
-  animation: nw-strobe calc(var(--spd) * 0.5) steps(1, end) infinite;
-}
-@keyframes nw-strobe {
-  0%,
-  49% {
-    opacity: 0.1;
-  }
-  50%,
-  100% {
-    opacity: 0.85;
-  }
-}
-
+/* Color Shift: luminous rim cycling the full spectrum. */
 .pfx-rotate::before {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  box-shadow: inset 0 0 0 1.2px var(--per-a);
-  animation: nw-hue calc(var(--spd) * 2.4) linear infinite;
+  box-shadow:
+    inset 0 0 0 2px var(--per-a),
+    inset 0 0 18px color-mix(in oklab, var(--per-b) 70%, transparent),
+    0 0 22px var(--per-a);
+  animation: nw-hue calc(var(--spd) * 1.2) linear infinite;
 }
 @keyframes nw-hue {
   to {
     filter: hue-rotate(360deg);
   }
+}
+
+/* Voltage Surge: erratic electrocution (Live Current + Strobe). */
+.pfx-voltage::before,
+.pfx-voltage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 0 0 2px var(--per-a),
+    inset 0 0 22px var(--per-b),
+    0 0 26px var(--per-a);
+  animation: nw-volt calc(var(--spd) * 0.32) steps(1, end) infinite;
+}
+.pfx-voltage::after {
+  box-shadow: inset 0 0 0 1px oklch(1 0 0 / 0.95), 0 0 34px var(--per-b);
+  animation: nw-volt2 calc(var(--spd) * 0.21) steps(1, end) infinite;
+}
+@keyframes nw-volt {
+  0% { opacity: 0.1; filter: hue-rotate(0deg) brightness(1); }
+  9% { opacity: 1; filter: hue-rotate(40deg) brightness(2.2); }
+  14% { opacity: 0.2; }
+  22% { opacity: 0.95; filter: hue-rotate(-60deg) brightness(1.6); }
+  27% { opacity: 0.05; }
+  48% { opacity: 0.7; filter: hue-rotate(120deg) brightness(2.6); }
+  52% { opacity: 0.1; }
+  71% { opacity: 1; filter: hue-rotate(-20deg) brightness(1.9); }
+  76% { opacity: 0.15; }
+  100% { opacity: 0.1; }
+}
+@keyframes nw-volt2 {
+  0%, 30%, 60%, 100% { opacity: 0; }
+  33% { opacity: 1; }
+  63% { opacity: 0.8; }
+}
+
+/* Glitch: sharp digital tears. */
+.pfx-glitch::before,
+.pfx-glitch::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border-top: 2px solid var(--per-a);
+  border-bottom: 2px solid var(--per-b);
+  animation: nw-glitch calc(var(--spd) * 0.6) steps(1, end) infinite;
+}
+.pfx-glitch::after {
+  border: 0;
+  border-left: 2px solid var(--per-b);
+  border-right: 2px solid var(--per-a);
+  animation-delay: calc(var(--spd) * -0.27);
+}
+@keyframes nw-glitch {
+  0%, 62%, 100% { opacity: 0.2; transform: translate(0, 0); }
+  66% { opacity: 1; transform: translate(3px, -1px); filter: hue-rotate(90deg); }
+  70% { opacity: 0.4; transform: translate(-4px, 1px); }
+  74% { opacity: 1; transform: translate(2px, 0); filter: hue-rotate(-90deg); }
+  80% { opacity: 0.3; transform: translate(0, 0); }
+}
+
+/* Node Nexus: four large corner nodes firing in sequence. */
+.pfx-nodes::before,
+.pfx-nodes::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 0 0, var(--per-a) 0 4px, transparent 9px),
+    radial-gradient(circle at 100% 100%, var(--per-a) 0 4px, transparent 9px);
+  filter: drop-shadow(0 0 6px var(--per-a)) drop-shadow(0 0 14px var(--per-a));
+  animation: nw-node var(--spd) ease-in-out infinite;
+}
+.pfx-nodes::after {
+  background:
+    radial-gradient(circle at 100% 0, var(--per-b) 0 4px, transparent 9px),
+    radial-gradient(circle at 0 100%, var(--per-b) 0 4px, transparent 9px);
+  filter: drop-shadow(0 0 6px var(--per-b)) drop-shadow(0 0 14px var(--per-b));
+  animation-delay: calc(var(--spd) / -2);
+}
+@keyframes nw-node {
+  0%, 100% { opacity: 0.25; transform: scale(1); }
+  45% { opacity: 0.35; }
+  52% { opacity: 1; transform: scale(1.012); }
+  60% { opacity: 0.5; }
+}
+
+/* Ember Burn: molten anodized heat (Anodized Burn + Ember Edge). */
+.pfx-burn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 -16px 22px -10px var(--per-a),
+    inset 0 0 0 1.5px color-mix(in oklab, var(--per-b) 80%, transparent),
+    inset 0 0 26px -6px var(--per-b),
+    0 6px 24px -6px var(--per-a);
+  animation: nw-burn calc(var(--spd) * 0.55) ease-in-out infinite alternate;
+}
+.pfx-burn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(2px 2px at 18% 96%, var(--per-b), transparent),
+    radial-gradient(2px 2px at 46% 98%, oklch(1 0.05 80), transparent),
+    radial-gradient(1.6px 1.6px at 72% 95%, var(--per-a), transparent),
+    radial-gradient(2px 2px at 88% 97%, var(--per-b), transparent);
+  animation: nw-ember calc(var(--spd) * 0.7) ease-out infinite;
+}
+@keyframes nw-burn {
+  from { opacity: 0.55; filter: hue-rotate(-14deg) brightness(0.9); }
+  to { opacity: 1; filter: hue-rotate(10deg) brightness(1.5); }
+}
+@keyframes nw-ember {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(-40%); opacity: 0; }
+}
+
+/* Breathing Halo. */
+.pfx-breathe::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow:
+    0 0 28px color-mix(in oklab, var(--per-a) 85%, transparent),
+    inset 0 0 22px color-mix(in oklab, var(--per-b) 60%, transparent),
+    inset 0 0 0 1.5px var(--per-a);
+  animation: nw-breathe calc(var(--spd) * 0.8) ease-in-out infinite alternate;
+}
+@keyframes nw-breathe {
+  from { opacity: 0.15; }
+  to { opacity: 1; }
+}
+
+/* Color shift overlay: hue-cycles any perimeter effect. */
+.nw-perimeter.pfx-shift {
+  animation: nw-hue calc(var(--spd) * 1.4) linear infinite;
+}
+
+/* --- body (interior) effects --- */
+.nw-body-fx {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.bfx-parade > .nw-body-fx::before {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  background: linear-gradient(
+    120deg,
+    var(--body-a),
+    var(--per-a),
+    var(--body-b),
+    var(--per-b),
+    var(--body-a)
+  );
+  background-size: 300% 300%;
+  opacity: 0.75;
+  mix-blend-mode: screen;
+  animation:
+    nw-parade calc(var(--spd) * 1.3) linear infinite,
+    nw-hue calc(var(--spd) * 2.2) linear infinite;
+}
+@keyframes nw-parade {
+  to { background-position: 300% 0; }
+}
+.bfx-prism > .nw-body-fx::before {
+  content: "";
+  position: absolute;
+  inset: -30%;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    oklch(0.75 0.22 25 / 0.55) 40%,
+    oklch(0.85 0.2 95 / 0.55) 46%,
+    oklch(0.8 0.2 160 / 0.55) 52%,
+    oklch(0.7 0.22 255 / 0.55) 58%,
+    oklch(0.65 0.25 310 / 0.55) 64%,
+    transparent 74%
+  );
+  mix-blend-mode: screen;
+  filter: blur(6px);
+  animation: nw-prism calc(var(--spd) * 0.9) ease-in-out infinite alternate;
+}
+@keyframes nw-prism {
+  from { transform: translateX(-35%) rotate(0deg); }
+  to { transform: translateX(35%) rotate(8deg); }
+}
+.bfx-swell {
+  animation: nw-swell calc(var(--spd) * 0.9) cubic-bezier(0.45, 0, 0.25, 1) infinite;
+}
+@keyframes nw-swell {
+  0%, 100% { scale: 1 1; border-radius: 14px; }
+  35% { scale: 1.07 1.05; border-radius: 22px 12px 26px 10px; }
+  55% { scale: 1.04 1.08; border-radius: 12px 26px 10px 24px; }
+  75% { scale: 0.99 1; border-radius: 16px; }
+}
+.bfx-swell > .nw-body-fx::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, color-mix(in oklab, var(--per-a) 45%, transparent), transparent 70%);
+  animation: nw-breathe calc(var(--spd) * 0.45) ease-in-out infinite alternate;
+}
+.bfx-voltage > .nw-body-fx::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 30% 40%, color-mix(in oklab, var(--per-a) 80%, transparent), transparent 55%),
+    radial-gradient(circle at 70% 65%, color-mix(in oklab, var(--per-b) 80%, transparent), transparent 55%);
+  mix-blend-mode: screen;
+  animation: nw-volt calc(var(--spd) * 0.36) steps(1, end) infinite;
+}
+
+/* Overlay faces never swell (they are rotating physical objects). */
+.nw-face.bfx-swell {
+  animation: none;
 }
 
 /* --- ambient float --- */
@@ -607,6 +613,9 @@
 .nw-reduced .nw-float,
 .nw-reduced .nw-perimeter::before,
 .nw-reduced .nw-perimeter::after,
+.nw-reduced .nw-perimeter,
+.nw-reduced .nw-facet,
+.nw-reduced .nw-body-fx::before,
 .nw-reduced .nw-field-effect::before,
 .nw-reduced .nw-field-effect::after {
   animation: none !important;
