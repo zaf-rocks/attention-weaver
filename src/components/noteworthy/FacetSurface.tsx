@@ -14,6 +14,21 @@ export function facetVars(facet: Facet, ambient: number): CSSProperties {
   } as CSSProperties;
 }
 
+/** Shared effect layers: interior body effect + perimeter effect (+ optional color shift). */
+export function FacetLayers({ facet }: { facet: Facet }) {
+  return (
+    <>
+      <div className="nw-body-fx" aria-hidden />
+      <div
+        className={cn("nw-perimeter", `pfx-${facet.perimeterEffect}`, facet.colorShift && "pfx-shift")}
+        aria-hidden
+      />
+    </>
+  );
+}
+
+export const bodyClass = (facet: Facet) => `bfx-${facet.bodyEffect ?? "none"}`;
+
 /** Dark translucent holographic surface with a thin luminous perimeter. */
 export function FacetSurface({
   facet,
@@ -32,10 +47,10 @@ export function FacetSurface({
 }) {
   return (
     <div
-      className={cn("nw-facet", float && "nw-float", className)}
+      className={cn("nw-facet", bodyClass(facet), float && "nw-float", className)}
       style={{ ...facetVars(facet, ambient), ...style }}
     >
-      <div className={cn("nw-perimeter", `pfx-${facet.perimeterEffect}`)} aria-hidden />
+      <FacetLayers facet={facet} />
       {children}
     </div>
   );

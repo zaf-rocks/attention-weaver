@@ -1,15 +1,15 @@
 # Noteworthy roadmap
 
-## Pass 1 — Data safety + fixed-field migration (current)
-- [ ] Backup module: build/validate/summarize, dated filename, snapshot + restore
-- [ ] Data Safety panel reachable from the field (export, import w/ preview + confirm, restore last recovery, saved-locally + last-backup timestamps)
-- [ ] Remove all user-facing Weight/size UI (notch control, locks, percentages, notices)
-- [ ] Remove runtime weight coupling from field layout; fixed geometry constants only
-- [ ] Information face migration: position name, title, single description, tasks + subtasks, notes, last accessed + due, unlimited reminders, complete, one Customize, Save and Continue
-- [ ] Tests: backup validation, state migration, round trip
-- [ ] Validate portrait containment, persistence, no weight UI, build/type/test health
+## Today's pass (3-step plan + effects/color requests)
+- [ ] Effects: consolidated dramatic perimeter set, interior body effects, color-shift toggle on any perimeter
+- [ ] Color studio: HSB + alpha picker that keeps values, recent colors, gradient presets (incl. experimental), user-saved presets
+- [ ] Compact effect chooser + pinned live preview in Customize
+- [ ] Smoother 540° flip (GPU transform travel)
+- [ ] Larger, bolder facet titles filling empty space
+- [ ] Browser-verify V1A in portrait + landscape (17 facets, utilities, no scroll/console errors)
 
-## Deferred (explicitly out of this pass)
-- Cloud/auth/sync
-- Utility restructuring (A–K tabs, composer, 12 post-it boards)
-- New visual skin / landscape redesign / animation choreography
+## Done earlier
+- Data safety, fixed-field migration, Weight UI removal, Information face, utility hub + corkboard
+
+## Deferred
+- Cloud/auth/sync, new skins, cockpit controls

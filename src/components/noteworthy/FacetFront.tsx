@@ -3,6 +3,14 @@ import { cn } from "@/lib/utils";
 
 type Scale = "xl" | "lg" | "md" | "sm" | "bar";
 
+/** Title size scales with the facet itself (container units) so it fills the face. */
+const TITLE_CQ: Record<Exclude<Scale, "bar">, string> = {
+  xl: "clamp(18px, 11cqi, 44px)",
+  lg: "clamp(13px, 14.5cqi, 30px)",
+  md: "clamp(11px, 16cqi, 24px)",
+  sm: "clamp(9.5px, 17cqi, 18px)",
+};
+
 const TYPE: Record<Scale, { title: string; tag: string; icon: string }> = {
   xl: { title: "text-[15px]", tag: "text-[10px]", icon: "text-[28px]" },
   lg: { title: "text-[12px]", tag: "text-[9px]", icon: "text-[19px]" },
@@ -37,7 +45,10 @@ export function FacetFront({ facet, scale }: { facet: Facet; scale: Scale }) {
   }
 
   return (
-    <div className="relative z-[3] flex h-full min-w-0 flex-col justify-between p-1.5">
+    <div
+      className="relative z-[3] flex h-full min-w-0 flex-col justify-between p-1.5"
+      style={{ containerType: "size" }}
+    >
       <div className="flex min-w-0 items-start gap-1">
         <span
           className={cn(t.icon, "shrink-0 leading-none opacity-90")}
@@ -56,10 +67,10 @@ export function FacetFront({ facet, scale }: { facet: Facet; scale: Scale }) {
       <div className="min-w-0">
         <h3
           className={cn(
-            t.title,
-            "line-clamp-2 font-display leading-tight font-semibold tracking-wide",
+            "nw-title line-clamp-3 font-display leading-[1.02] font-bold tracking-tight break-words",
             facet.complete && "line-through opacity-60",
           )}
+          style={{ fontSize: TITLE_CQ[scale] }}
         >
           {facet.title}
         </h3>
