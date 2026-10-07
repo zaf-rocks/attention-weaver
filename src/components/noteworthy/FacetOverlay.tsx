@@ -34,7 +34,8 @@ export function FacetOverlay({
   const reduced = settings.reducedMotion;
   const [mode, setMode] = useState<Mode>("info");
   const [phase, setPhase] = useState<Phase>("depart");
-  const [rect, setRect] = useState<Rect>(sourceRect);
+  const [rect, setRect] = useState<Rect>(() => centeredTargetRect());
+  const [atSource, setAtSource] = useState(true);
   const [angle, setAngle] = useState(0);
   const [spark, setSpark] = useState(false);
   const closing = useRef(false);
@@ -46,7 +47,7 @@ export function FacetOverlay({
   useEffect(() => {
     const raf = requestAnimationFrame(() =>
       requestAnimationFrame(() => {
-        setRect(centeredTargetRect());
+        setAtSource(false);
         if (!reduced) setAngle(ENTRANCE_ROTATION);
         setPhase("travel");
       }),
@@ -85,7 +86,7 @@ export function FacetOverlay({
     if (closing.current) return;
     closing.current = true;
     setPhase("returning");
-    setRect(sourceRect);
+    setAtSource(true);
     setTimeout(onClose, reduced ? REDUCED_MS : 420);
   }, [onClose, reduced, sourceRect]);
 
@@ -136,10 +137,16 @@ export function FacetOverlay({
           top: rect.top,
           width: rect.width,
           height: rect.height,
-          transition: `left ${travelMs}ms ${TRAVEL_EASING}, top ${travelMs}ms ${TRAVEL_EASING}, width ${travelMs}ms ${TRAVEL_EASING}, height ${travelMs}ms ${TRAVEL_EASING}, opacity 320ms ease-out`,
+          // GPU-only travel: the carrier sits at its centered rect and a single
+          // translate+scale transform carries it from the tapped facet's rect.
+          transformOrigin: "0 0",
+          transform: atSource
+            ? `translate3d(${sourceRect.left - rect.left}px, ${sourceRect.top - rect.top}px, 0) scale(${sourceRect.width / rect.width}, ${sourceRect.height / rect.height})`
+            : "translate3d(0,0,0) scale(1,1)",
+          transition: `transform ${phase === "returning" ? (reduced ? REDUCED_MS : 420) : travelMs}ms ${TRAVEL_EASING}, opacity 320ms ease-out`,
           opacity: phase === "returning" ? 0 : 1,
           transformStyle: "preserve-3d",
-          willChange: "left, top, width, height",
+          willChange: "transform",
         }}
       >
         {/* ROTATOR — rotation only, about its own center. */}
