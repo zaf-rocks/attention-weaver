@@ -105,7 +105,7 @@ export function FacetOverlay({
 
   const showFront = phase !== "arrived" && !reduced;
   const infoVisible = reduced ? mode === "info" : true;
-  const thirdVisible = reduced ? mode !== "info" : true;
+  const thirdVisible = reduced ? mode !== "info" : phase === "arrived";
 
   const faceStyle = (rotate: number) => ({
     ...facetVars(facet, 0),
