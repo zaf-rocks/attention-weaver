@@ -7,13 +7,13 @@
 
 export const ENTRANCE_ROTATION = 540; // 360 + 180 -> lands on the Information face
 export const FACE_ROTATION = 180; // Information <-> third physical state
-export const TRAVEL_MS = 1500;
+export const TRAVEL_MS = 1900;
 export const FACE_MS = 900;
 export const REDUCED_MS = 320;
 export const STAGE_MARGIN = 12; // px breathing room around the centered object
 export const MAX_OBJECT_WIDTH = 420;
 
-export const TRAVEL_EASING = "cubic-bezier(0.62, 0.02, 0.34, 1)";
+export const TRAVEL_EASING = "cubic-bezier(0.5, 0.05, 0.15, 1)";
 
 export type Rect = { left: number; top: number; width: number; height: number };
 

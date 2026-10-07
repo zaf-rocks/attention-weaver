@@ -1,6 +1,9 @@
 import type { Facet } from "@/lib/noteworthy/types";
-import { PERIMETER_EFFECTS } from "@/lib/noteworthy/effects";
-import { ColorField, EffectPicker, Slider } from "./EffectPicker";
+import { BODY_EFFECTS, PERIMETER_EFFECTS } from "@/lib/noteworthy/effects";
+import { EffectPicker, Slider } from "./EffectPicker";
+import { ColorStudio } from "./ColorStudio";
+import { FacetSurface } from "./FacetSurface";
+import { FacetFront } from "./FacetFront";
 
 const MARKS = ["◉", "✦", "◐", "❖", "△", "⬡", "≋", "▤", "⌬", "⚙", "❤", "◇", "↻", "⌂", "◎"];
 
@@ -34,6 +37,15 @@ export function CustomizeFace({
         </button>
       </header>
 
+      {/* Pinned live preview — always visible while editing */}
+      <div className="shrink-0 border-b border-border/60 px-3 py-2" data-testid="nw-customize-preview">
+        <div className="mx-auto aspect-[4/3] max-h-[26dvh] w-[62%] max-w-[calc(26dvh*4/3)]">
+          <FacetSurface facet={facet} ambient={60} float={false} className="h-full w-full">
+            <FacetFront facet={facet} scale="lg" />
+          </FacetSurface>
+        </div>
+      </div>
+
       <div className="nw-scroll flex-1 space-y-3 px-3 py-3">
         <div>
           <span className="nw-label">Center mark</span>
@@ -53,78 +65,43 @@ export function CustomizeFace({
           </div>
         </div>
 
-        <div className="space-y-1.5">
-          <span className="nw-label">Body gradient</span>
-          <ColorField
-            label="Endpoint A"
-            value={facet.body.a}
-            onChange={(v) => onPatch({ body: { ...facet.body, a: v } })}
-          />
-          <ColorField
-            label="Endpoint B"
-            value={facet.body.b}
-            onChange={(v) => onPatch({ body: { ...facet.body, b: v } })}
-          />
-        </div>
-
-        <div className="space-y-1.5">
-          <span className="nw-label">Perimeter gradient</span>
-          <ColorField
-            label="Endpoint A"
-            value={facet.perimeter.a}
-            onChange={(v) => onPatch({ perimeter: { ...facet.perimeter, a: v } })}
-          />
-          <ColorField
-            label="Endpoint B"
-            value={facet.perimeter.b}
-            onChange={(v) => onPatch({ perimeter: { ...facet.perimeter, b: v } })}
-          />
-        </div>
-
         <EffectPicker
-          label="Perimeter effect"
+          label="Inside effect"
+          options={BODY_EFFECTS}
+          value={facet.bodyEffect ?? "none"}
+          onChange={(v) => onPatch({ bodyEffect: v })}
+        />
+        <EffectPicker
+          label="Edge effect"
           options={PERIMETER_EFFECTS}
           value={facet.perimeterEffect}
           onChange={(v) => onPatch({ perimeterEffect: v })}
         />
+        <label className="flex items-center justify-between gap-2 rounded-lg border border-border/60 px-2 py-1.5">
+          <span className="nw-label">Color shifting edge</span>
+          <input
+            type="checkbox"
+            checked={Boolean(facet.colorShift)}
+            onChange={(e) => onPatch({ colorShift: e.target.checked })}
+            aria-label="Color shifting edge"
+          />
+        </label>
 
-        <Slider
-          label="Glow intensity"
-          value={facet.glow}
-          onChange={(v) => onPatch({ glow: v })}
-          suffix="%"
-        />
+        <Slider label="Glow intensity" value={facet.glow} onChange={(v) => onPatch({ glow: v })} suffix="%" />
         <Slider
           label="Effect speed"
           value={facet.effectSpeed}
           onChange={(v) => onPatch({ effectSpeed: v })}
           suffix="%"
         />
-        <Slider
-          label="Motion intensity"
-          value={facet.motion}
-          onChange={(v) => onPatch({ motion: v })}
-          suffix="%"
-        />
+        <Slider label="Motion intensity" value={facet.motion} onChange={(v) => onPatch({ motion: v })} suffix="%" />
 
-        <div
-          className="nw-facet h-20"
-          style={
-            {
-              ["--body-a" as string]: facet.body.a,
-              ["--body-b" as string]: facet.body.b,
-              ["--per-a" as string]: facet.perimeter.a,
-              ["--per-b" as string]: facet.perimeter.b,
-              ["--glow" as string]: facet.glow / 100,
-              ["--speed" as string]: facet.effectSpeed / 100,
-            } as React.CSSProperties
-          }
-        >
-          <div className={`nw-perimeter pfx-${facet.perimeterEffect}`} aria-hidden />
-          <div className="relative z-[3] grid h-full place-items-center text-xs tracking-[0.2em] uppercase">
-            Live preview
-          </div>
-        </div>
+        <ColorStudio label="Body gradient" value={facet.body} onChange={(g) => onPatch({ body: g })} />
+        <ColorStudio
+          label="Edge gradient"
+          value={facet.perimeter}
+          onChange={(g) => onPatch({ perimeter: g })}
+        />
       </div>
     </div>
   );

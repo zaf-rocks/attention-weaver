@@ -11,22 +11,31 @@ export function EffectPicker({
   value: string;
   onChange: (id: string) => void;
 }) {
+  const current = options.find((o) => o.id === value);
   return (
-    <label className="block">
+    <div role="radiogroup" aria-label={label}>
       <span className="nw-label">{label}</span>
-      <select
-        className="nw-input mt-1"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        aria-label={label}
-      >
+      <div className="nw-scroll-x mt-1 flex gap-1.5 pb-1">
         {options.map((o) => (
-          <option key={o.id} value={o.id}>
+          <button
+            key={o.id}
+            type="button"
+            role="radio"
+            aria-checked={o.id === value}
+            title={o.hint}
+            onClick={() => onChange(o.id)}
+            className={`shrink-0 rounded-full border px-2.5 py-1 text-[11px] whitespace-nowrap transition-colors ${
+              o.id === value
+                ? "border-primary bg-primary/15 text-primary"
+                : "border-border/60 text-muted-foreground hover:text-foreground"
+            }`}
+          >
             {o.name}
-          </option>
+          </button>
         ))}
-      </select>
-    </label>
+      </div>
+      {current?.hint && <p className="mt-0.5 text-[10px] text-muted-foreground">{current.hint}</p>}
+    </div>
   );
 }
 
