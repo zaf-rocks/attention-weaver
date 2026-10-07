@@ -214,6 +214,7 @@ const makeFacet = (s: Seed): Facet => ({
   perimeterEffect: normalizePerimeter(s.effect),
   bodyEffect: "none",
   colorShift: false,
+  text: null,
   glow: 55,
   motion: 45,
   effectSpeed: 45,

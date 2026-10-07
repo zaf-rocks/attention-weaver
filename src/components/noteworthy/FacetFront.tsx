@@ -51,8 +51,7 @@ export function FacetFront({ facet, scale }: { facet: Facet; scale: Scale }) {
     >
       <div className="flex min-w-0 items-start gap-1">
         <span
-          className={cn(t.icon, "shrink-0 leading-none opacity-90")}
-          style={{ filter: "drop-shadow(0 0 6px var(--per-a))" }}
+          className={cn(t.icon, "nw-mark shrink-0 leading-none")}
           aria-hidden
         >
           {facet.icon}
