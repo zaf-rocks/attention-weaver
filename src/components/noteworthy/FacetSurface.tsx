@@ -2,8 +2,16 @@ import type { CSSProperties, ReactNode } from "react";
 import type { Facet } from "@/lib/noteworthy/types";
 import { cn } from "@/lib/utils";
 
+const grad = (deg: number, g: Facet["body"]) =>
+  `linear-gradient(${deg}deg, ${(g.stops && g.stops.length >= 3 ? g.stops : [g.a, g.b]).join(", ")})`;
+
 export function facetVars(facet: Facet, ambient: number): CSSProperties {
+  const text = facet.text;
   return {
+    ["--body-img" as string]: grad(155, facet.body),
+    ["--per-img" as string]: grad(135, facet.perimeter),
+    ["--title-a" as string]: text ? text.a : "oklch(0.98 0.01 260)",
+    ["--title-b" as string]: text ? text.b : facet.perimeter.b,
     ["--body-a" as string]: facet.body.a,
     ["--body-b" as string]: facet.body.b,
     ["--per-a" as string]: facet.perimeter.a,

@@ -33,6 +33,8 @@ export type Reminder = {
 export type Gradient = {
   a: string;
   b: string;
+  /** Optional 3+ color stops (experimental presets). a/b stay first/last. */
+  stops?: string[];
 };
 
 export type Facet = {
@@ -57,6 +59,8 @@ export type Facet = {
   bodyEffect: string;
   /** Hue-cycles the perimeter on top of any perimeter effect. */
   colorShift: boolean;
+  /** Title + mark color. null = mirror edge color B. */
+  text: Gradient | null;
   glow: number; // 0..100
   motion: number; // 0..100
   effectSpeed: number; // 0..100

@@ -76,11 +76,13 @@ function migrateFacet(base: Facet, stored: unknown): Facet {
     lastAccessed: str(stored.lastAccessed, base.lastAccessed),
     due: str(stored.due, base.due),
     reminders,
-    body: { a: str(body.a, base.body.a), b: str(body.b, base.body.b) },
+    body: { a: str(body.a, base.body.a), b: str(body.b, base.body.b), ...stopsOf(body) },
     perimeter: {
       a: str(perimeter.a, base.perimeter.a),
       b: str(perimeter.b, base.perimeter.b),
+      ...stopsOf(perimeter),
     },
+    text: textOf(stored.text),
     perimeterEffect: normalizePerimeter(str(stored.perimeterEffect, base.perimeterEffect)),
     bodyEffect: normalizeBody(stored.bodyEffect),
     colorShift: Boolean(stored.colorShift),
@@ -118,4 +120,16 @@ export function migrateState(raw: unknown): NoteworthyState {
       depth: numSetting(settings.depth, base.settings.depth),
     },
   };
+}
+
+function stopsOf(g: unknown): { stops?: string[] } {
+  const st = (g as { stops?: unknown } | null)?.stops;
+  return Array.isArray(st) && st.length >= 3 && st.every((x) => typeof x === "string")
+    ? { stops: st as string[] }
+    : {};
+}
+
+function textOf(t: unknown): { a: string; b: string } | null {
+  const g = t as { a?: unknown; b?: unknown } | null;
+  return g && typeof g.a === "string" && typeof g.b === "string" ? { a: g.a, b: g.b } : null;
 }
