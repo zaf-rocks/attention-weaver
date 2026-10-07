@@ -39,6 +39,9 @@ export function FacetOverlay({
   const [angle, setAngle] = useState(0);
   const [spark, setSpark] = useState(false);
   const closing = useRef(false);
+  const [turning, setTurning] = useState(false);
+  const turnTimer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(turnTimer.current), []);
 
   const travelMs = reduced ? REDUCED_MS : TRAVEL_MS;
   const faceMs = reduced ? REDUCED_MS : FACE_MS;
@@ -100,12 +103,16 @@ export function FacetOverlay({
   const toMode = (next: Mode) => {
     if (next === mode) return;
     setMode(next);
+    // Keep both faces only while the turn is in flight, then drop the hidden one.
+    setTurning(true);
+    window.clearTimeout(turnTimer.current);
+    turnTimer.current = window.setTimeout(() => setTurning(false), (reduced ? REDUCED_MS : FACE_MS) + 60);
     if (!reduced) setAngle((a) => a + FACE_ROTATION);
   };
 
   const showFront = phase !== "arrived" && !reduced;
-  const infoVisible = reduced ? mode === "info" : true;
-  const thirdVisible = reduced ? mode !== "info" : phase === "arrived";
+  const infoVisible = mode === "info" || (!reduced && turning);
+  const thirdVisible = phase === "arrived" && (mode === "customize" || (!reduced && turning));
 
   const faceStyle = (rotate: number) => ({
     ...facetVars(facet, 0),

@@ -17,6 +17,7 @@ export const BODY_EFFECTS: EffectOption[] = [
   { id: "none", name: "Still", hint: "Plain body gradient." },
   { id: "parade", name: "Color Parade", hint: "A cycling parade of gradients flows through the body." },
   { id: "prism", name: "Prism Bleed", hint: "Spectral light refracts across the glass." },
+  { id: "bleed", name: "Spectral Bleed", hint: "Deep colors rise to medium-bright and back, drawing the eye." },
   { id: "swell", name: "Swell", hint: "The whole facet swells and contorts, then settles." },
   { id: "voltage", name: "Inner Voltage", hint: "The interior spasms with electric flashes." },
 ];

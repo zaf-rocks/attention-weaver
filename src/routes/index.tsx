@@ -83,7 +83,7 @@ function Field() {
       aria-label={`${f[id].title} — ${f[id].positionName || POSITION_NAMES[id]}`}
       className={cn(
         "group relative block min-w-0 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
-        selected && selected.id !== id && "nw-recede",
+        (selected || util) && selected?.id !== id && "nw-recede",
         selected && selected.id === id && "nw-source-hidden",
       )}
       style={style}
