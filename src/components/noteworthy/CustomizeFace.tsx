@@ -39,7 +39,7 @@ export function CustomizeFace({
 
       {/* Pinned live preview — always visible while editing */}
       <div className="shrink-0 border-b border-border/60 px-3 py-2" data-testid="nw-customize-preview">
-        <div className="mx-auto aspect-[4/3] w-[62%]">
+        <div className="mx-auto aspect-[4/3] max-h-[26dvh] w-[62%] max-w-[calc(26dvh*4/3)]">
           <FacetSurface facet={facet} ambient={60} float={false} className="h-full w-full">
             <FacetFront facet={facet} scale="lg" />
           </FacetSurface>

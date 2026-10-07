@@ -67,7 +67,7 @@ export function FacetFront({ facet, scale }: { facet: Facet; scale: Scale }) {
       <div className="min-w-0">
         <h3
           className={cn(
-            "nw-title line-clamp-3 font-display leading-[1.02] font-bold tracking-tight break-words",
+            "nw-title line-clamp-3 font-display leading-[1.02] font-bold tracking-tight [overflow-wrap:anywhere] hyphens-auto",
             facet.complete && "line-through opacity-60",
           )}
           style={{ fontSize: TITLE_CQ[scale] }}
