@@ -44,10 +44,10 @@ export function HoldDelete({ label, onDelete }: { label: string; onDelete: () =>
         aria-hidden
         className="absolute inset-0 rounded-full"
         style={{
-          background: "conic-gradient(var(--destructive) var(--p), transparent 0)",
-          ["--p" as string]: holding ? "100%" : "0%",
-          transition: holding ? "--p 0.8s linear" : "none",
-          opacity: holding ? 0.85 : 0,
+          background: "var(--destructive)",
+          transform: `scale(${holding ? 1 : 0})`,
+          transition: holding ? "transform 0.8s linear" : "none",
+          opacity: 0.85,
         }}
       />
       <span className="relative">✕</span>
