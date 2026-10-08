@@ -668,7 +668,7 @@
 
 /* Large spectral facet titles */
 .nw-title {
-  background: linear-gradient(100deg, var(--title-a) 0%, var(--title-a) 30%, var(--title-b) 100%);
+  background: var(--title-img, linear-gradient(100deg, var(--title-a) 0%, var(--title-a) 30%, var(--title-b) 100%));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;

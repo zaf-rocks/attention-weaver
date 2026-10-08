@@ -65,7 +65,7 @@ export const EXPERIMENTAL_PRESETS: GradientPair[] = [
 ];
 
 const KEY = "noteworthy.colors.v1";
-type Memory = { recent: string[]; saved: GradientPair[]; last?: string };
+type Memory = { recent: string[]; saved: (GradientPair & { stops?: string[] })[]; last?: string };
 
 export function loadMemory(): Memory {
   if (typeof window === "undefined") return { recent: [], saved: [] };
@@ -92,4 +92,94 @@ export function saveMemory(m: Memory) {
 export function pushRecent(m: Memory, hex: string): Memory {
   const recent = [hex, ...m.recent.filter((c) => c.toLowerCase() !== hex.toLowerCase())].slice(0, 24);
   return { ...m, recent, last: hex };
+}
+
+/* ───────────── Spectral system ───────────── */
+
+export type Tone = "body" | "edge" | "text";
+export type SpectralPreset = { name: string; stops: string[]; group: string };
+
+/** The seven spectral hues in order. Each has a deep (body) and a bright (edge) form. */
+export const SPECTRUM = [
+  { name: "Red", deep: "#3a0610", bright: "#ff2a48" },
+  { name: "Orange", deep: "#3a1504", bright: "#ff7a1a" },
+  { name: "Yellow", deep: "#332a04", bright: "#ffd81f" },
+  { name: "Green", deep: "#06301a", bright: "#2bff7a" },
+  { name: "Blue", deep: "#061a40", bright: "#2a8bff" },
+  { name: "Purple", deep: "#1f0a40", bright: "#9b4dff" },
+  { name: "Pink", deep: "#3a0a2c", bright: "#ff4dc4" },
+] as const;
+
+const toneOf = (i: number, tone: Tone) => {
+  const s = SPECTRUM[((i % 7) + 7) % 7]!;
+  return tone === "body" ? s.deep : s.bright;
+};
+
+const GROUPS = ["Neighbors", "One apart", "Two apart", "Three apart"];
+
+/** Pairs by spectral distance (1 = adjacent … 4 = wide), in deep or bright tones. */
+export function spectralPairs(tone: Tone): SpectralPreset[] {
+  const out: SpectralPreset[] = [];
+  for (let d = 1; d <= 4; d++) {
+    for (let i = 0; i < 7; i++) {
+      // distance 4 on a 7-ring mirrors distance 3; keep both for full coverage
+      out.push({
+        name: `${SPECTRUM[i]!.name} + ${SPECTRUM[(i + d) % 7]!.name}`,
+        stops: [toneOf(i, tone), toneOf(i + d, tone)],
+        group: GROUPS[d - 1] ?? "Wide",
+      });
+    }
+  }
+  return out;
+}
+
+/** Experimental: 3+ color spectral ribbons. */
+export function experimentalPresets(tone: Tone): SpectralPreset[] {
+  const seq = (name: string, idx: number[]): SpectralPreset => ({
+    name,
+    stops: idx.map((i) => toneOf(i, tone)),
+    group: "Experimental",
+  });
+  return [
+    seq("Ember Rise", [0, 1, 2]),
+    seq("Canopy", [2, 3, 4]),
+    seq("Deep Tide", [3, 4, 5]),
+    seq("Twilight", [4, 5, 6]),
+    seq("Sunset Fan", [5, 6, 0, 1]),
+    seq("Aurora", [3, 4, 5, 6]),
+    seq("Oil Slick", [5, 3, 6, 4]),
+    seq("Prism", [0, 2, 4, 6]),
+    seq("Full Spectrum", [0, 1, 2, 3, 4, 5, 6]),
+  ];
+}
+
+export const gradientCss = (stops: string[], deg = 90) => `linear-gradient(${deg}deg, ${stops.join(", ")})`;
+
+/* ───────────── Saved gradients (all tones) ───────────── */
+
+export type SavedGradient = { name: string; stops: string[] };
+export const savedStops = (p: GradientPair & { stops?: string[] }) =>
+  p.stops && p.stops.length >= 2 ? p.stops : [p.a, p.b];
+
+/* ───────────── Marks (user-defined symbols) ───────────── */
+
+const MARK_KEY = "noteworthy.marks.v1";
+/** A small, deliberate starter set — everything else is the user's own. */
+export const STARTER_MARKS = ["✦", "◈", "⬡", "◉", "△", "🎯", "⚡", "🧠", "💎", "🔥"];
+
+export function loadMarks(): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = JSON.parse(localStorage.getItem(MARK_KEY) ?? "[]");
+    return Array.isArray(raw) ? raw.filter((x: unknown) => typeof x === "string") : [];
+  } catch {
+    return [];
+  }
+}
+export function saveMarks(list: string[]) {
+  try {
+    localStorage.setItem(MARK_KEY, JSON.stringify(list.slice(0, 60)));
+  } catch {
+    /* non-fatal */
+  }
 }

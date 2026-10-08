@@ -1,90 +1,96 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  EXPERIMENTAL_PRESETS,
-  GRADIENT_PRESETS,
+  experimentalPresets,
+  gradientCss,
   hexToHsva,
   hsvaToHex,
   loadMemory,
   pushRecent,
+  savedStops,
   saveMemory,
-  type GradientPair,
+  spectralPairs,
   type HSVA,
+  type Tone,
 } from "@/lib/noteworthy/color";
 import type { Gradient } from "@/lib/noteworthy/types";
+import { HoldDelete } from "./HoldDelete";
 
 type Memory = ReturnType<typeof loadMemory>;
 
+const stopsOf = (g: Gradient) => (g.stops && g.stops.length >= 3 ? g.stops : [g.a, g.b]);
+const fromStops = (stops: string[]): Gradient =>
+  stops.length >= 3
+    ? { a: stops[0]!, b: stops[stops.length - 1]!, stops }
+    : { a: stops[0]!, b: stops[1] ?? stops[0]! };
+
 /**
- * Gradient editor for one surface (body or perimeter): endpoint A/B swatches,
- * an HSB+alpha picker that never resets (hue survives black/gray), recent
- * colors, curated + experimental presets and user-saved gradients.
+ * Gradient editor for one surface. Tone decides the preset family:
+ * body = deep spectral tones, edge/text = bright spectral tones.
+ * Every stop is editable; picker remembers hue at black.
  */
 export function ColorStudio({
-  label,
+  tone,
   value,
   onChange,
 }: {
-  label: string;
+  tone: Tone;
   value: Gradient;
   onChange: (g: Gradient) => void;
 }) {
-  const [end, setEnd] = useState<"a" | "b">("a");
+  const stops = stopsOf(value);
+  const [idx, setIdx] = useState(0);
+  const sel = Math.min(idx, stops.length - 1);
   const [mem, setMem] = useState<Memory>({ recent: [], saved: [] });
   useEffect(() => setMem(loadMemory()), []);
-
   const update = (m: Memory) => {
     setMem(m);
     saveMemory(m);
   };
 
-  const setColor = (hex: string) => onChange({ ...value, [end]: hex });
+  const setColor = (hex: string) => {
+    const next = [...stops];
+    next[sel] = hex;
+    onChange(fromStops(next));
+  };
   const commitRecent = (hex: string) => update(pushRecent(loadMemory(), hex));
-
-  const applyPair = (p: GradientPair) => {
-    onChange({ a: p.a, b: p.b });
-    update(pushRecent(pushRecent(loadMemory(), p.a), p.b));
+  const apply = (s: string[]) => {
+    onChange(fromStops(s));
+    setIdx(0);
   };
 
   const saveCurrent = () => {
     const m = loadMemory();
-    const name = `Saved ${m.saved.length + 1}`;
-    update({ ...m, saved: [{ name, a: value.a, b: value.b }, ...m.saved].slice(0, 16) });
+    const name = `Mine ${m.saved.length + 1}`;
+    update({ ...m, saved: [{ name, a: stops[0]!, b: stops[stops.length - 1]!, stops }, ...m.saved].slice(0, 30) });
   };
   const removeSaved = (i: number) => {
     const m = loadMemory();
     update({ ...m, saved: m.saved.filter((_, j) => j !== i) });
   };
 
-  return (
-    <section className="space-y-2 rounded-xl border border-border/60 bg-card/40 p-2">
-      <div className="flex items-center gap-2">
-        <span className="nw-label">{label}</span>
-        <div
-          className="ml-auto h-4 w-20 rounded-full border border-border/60"
-          style={{ background: `linear-gradient(90deg, ${value.a}, ${value.b})` }}
-          aria-hidden
-        />
-      </div>
+  const pairs = spectralPairs(tone);
+  const groups = Array.from(new Set(pairs.map((p) => p.group)));
 
-      <div className="flex gap-1.5">
-        {(["a", "b"] as const).map((k) => (
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-1.5">
+        {stops.map((c, i) => (
           <button
-            key={k}
-            onClick={() => setEnd(k)}
-            aria-pressed={end === k}
-            className={`flex flex-1 items-center gap-1.5 rounded-lg border px-2 py-1 text-[11px] ${
-              end === k ? "border-primary text-foreground" : "border-border/60 text-muted-foreground"
+            key={i}
+            onClick={() => setIdx(i)}
+            aria-pressed={sel === i}
+            aria-label={`Edit color ${i + 1}`}
+            className={`nw-checker h-7 w-7 shrink-0 rounded-full border-2 ${
+              sel === i ? "border-primary" : "border-border/60"
             }`}
           >
-            <span className="nw-checker h-4 w-4 rounded-full border border-border/60">
-              <span className="block h-full w-full rounded-full" style={{ background: value[k] }} />
-            </span>
-            Endpoint {k.toUpperCase()}
+            <span className="block h-full w-full rounded-full" style={{ background: c }} />
           </button>
         ))}
+        <div className="ml-1 h-4 flex-1 rounded-full border border-border/60" style={{ background: gradientCss(stops) }} aria-hidden />
       </div>
 
-      <HsvPicker key={end} hex={value[end]} onChange={setColor} onCommit={commitRecent} />
+      <HsvPicker key={sel} hex={stops[sel]!} onChange={setColor} onCommit={commitRecent} />
 
       {mem.recent.length > 0 && (
         <Row title="Recent">
@@ -94,33 +100,33 @@ export function ColorStudio({
         </Row>
       )}
 
-      <Row title="Presets">
-        {GRADIENT_PRESETS.map((p) => <Pair key={p.name} p={p} onClick={() => applyPair(p)} />)}
+      {groups.map((g) => (
+        <Row key={g} title={g}>
+          {pairs.filter((p) => p.group === g).map((p) => (
+            <Bead key={p.name} name={p.name} stops={p.stops} onClick={() => apply(p.stops)} />
+          ))}
+        </Row>
+      ))}
+      <Row title="Experimental · 3+ colors">
+        {experimentalPresets(tone).map((p) => (
+          <Bead key={p.name} name={p.name} stops={p.stops} wide onClick={() => apply(p.stops)} />
+        ))}
       </Row>
-      <Row title="Experimental">
-        {EXPERIMENTAL_PRESETS.map((p) => <Pair key={p.name} p={p} onClick={() => applyPair(p)} />)}
-      </Row>
-      <Row title="My gradients">
+      <Row title="My gradients · hold ✕ to delete">
         <button
           onClick={saveCurrent}
-          className="h-6 shrink-0 rounded-full border border-dashed border-primary/70 px-2 text-[10px] text-primary"
+          className="h-5 shrink-0 rounded-full border border-dashed border-primary/70 px-2 text-[10px] text-primary"
         >
-          + Save current
+          + Save
         </button>
         {mem.saved.map((p, i) => (
-          <span key={`${p.name}-${i}`} className="relative shrink-0">
-            <Pair p={p} onClick={() => applyPair(p)} />
-            <button
-              onClick={() => removeSaved(i)}
-              aria-label={`Delete ${p.name}`}
-              className="absolute -top-1 -right-1 grid h-3.5 w-3.5 place-items-center rounded-full bg-card text-[8px] text-muted-foreground"
-            >
-              ✕
-            </button>
+          <span key={`${p.name}-${i}`} className="relative flex shrink-0 items-center gap-0.5">
+            <Bead name={p.name} stops={savedStops(p)} onClick={() => apply(savedStops(p))} />
+            <HoldDelete label={`Delete ${p.name}`} onDelete={() => removeSaved(i)} />
           </span>
         ))}
       </Row>
-    </section>
+    </div>
   );
 }
 
@@ -240,28 +246,28 @@ function Track({
 function Row({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <span className="text-[10px] text-muted-foreground">{title}</span>
-      <div className="nw-scroll-x mt-0.5 flex items-center gap-1.5 pb-1">{children}</div>
+      <span className="text-[9px] tracking-wide text-muted-foreground uppercase">{title}</span>
+      <div className="nw-scroll-x mt-0.5 flex items-center gap-1 pb-0.5">{children}</div>
     </div>
   );
 }
 
 function Swatch({ color, onClick }: { color: string; onClick: () => void }) {
   return (
-    <button onClick={onClick} aria-label={`Use ${color}`} className="nw-checker h-6 w-6 shrink-0 rounded-full border border-border/60">
+    <button onClick={onClick} aria-label={`Use ${color}`} className="nw-checker h-5 w-5 shrink-0 rounded-full border border-border/60">
       <span className="block h-full w-full rounded-full" style={{ background: color }} />
     </button>
   );
 }
 
-function Pair({ p, onClick }: { p: GradientPair; onClick: () => void }) {
+function Bead({ name, stops, wide, onClick }: { name: string; stops: string[]; wide?: boolean; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      title={p.name}
-      aria-label={`Apply ${p.name}`}
-      className="h-6 w-12 shrink-0 rounded-full border border-border/60"
-      style={{ background: `linear-gradient(90deg, ${p.a}, ${p.b})` }}
+      title={name}
+      aria-label={`Apply ${name}`}
+      className={`h-5 shrink-0 rounded-full border border-border/60 ${wide ? "w-10" : "w-7"}`}
+      style={{ background: gradientCss(stops) }}
     />
   );
 }

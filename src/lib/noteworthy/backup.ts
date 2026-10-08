@@ -5,6 +5,8 @@
  * downloads and picks themselves. Nothing is uploaded anywhere.
  */
 
+import { readSpacesBundle, writeSpacesBundle } from "./spaces";
+
 export const MAIN_KEY = "noteworthy.v1";
 export const UTILITY_KEY = "noteworthy.utility.v1";
 export const SNAPSHOT_KEY = "noteworthy.recovery.v1";
@@ -24,6 +26,7 @@ export type BackupFile = {
   utility: unknown;
   hub?: unknown;
   board?: unknown;
+  spaces?: unknown;
 };
 
 export type Snapshot = {
@@ -33,6 +36,7 @@ export type Snapshot = {
   utility: unknown;
   hub?: unknown;
   board?: unknown;
+  spaces?: unknown;
 };
 
 export type ValidationResult =
@@ -105,6 +109,7 @@ export function validateBackup(raw: unknown): ValidationResult {
       utility: isObject(raw.utility) ? raw.utility : {},
       hub: isObject(raw.hub) ? raw.hub : null,
       board: isObject(raw.board) ? raw.board : null,
+      spaces: isObject(raw.spaces) ? raw.spaces : null,
     },
   };
 }
@@ -158,13 +163,10 @@ const readKey = (key: string): unknown => {
 };
 
 export function currentBackup(): BackupFile {
-  return buildBackup(
-    readKey(MAIN_KEY),
-    readKey(UTILITY_KEY),
-    new Date(),
-    readKey(HUB_KEY),
-    readKey(BOARD_KEY),
-  );
+  return {
+    ...buildBackup(readKey(MAIN_KEY), readKey(UTILITY_KEY), new Date(), readKey(HUB_KEY), readKey(BOARD_KEY)),
+    spaces: readSpacesBundle(),
+  };
 }
 
 export function downloadBackup(): string {
@@ -192,6 +194,7 @@ export function takeSnapshot(reason: string): Snapshot {
     utility: readKey(UTILITY_KEY),
     hub: readKey(HUB_KEY),
     board: readKey(BOARD_KEY),
+    spaces: readSpacesBundle(),
   };
   try {
     window.localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(snap));
@@ -211,6 +214,7 @@ export function readSnapshot(): Snapshot | null {
     utility: raw.utility ?? null,
     hub: raw.hub ?? null,
     board: raw.board ?? null,
+    spaces: raw.spaces ?? null,
   };
 }
 
@@ -221,6 +225,7 @@ export function applyBackup(backup: BackupFile) {
   window.localStorage.setItem(UTILITY_KEY, JSON.stringify(backup.utility));
   if (backup.hub) window.localStorage.setItem(HUB_KEY, JSON.stringify(backup.hub));
   if (backup.board) window.localStorage.setItem(BOARD_KEY, JSON.stringify(backup.board));
+  if (backup.spaces) writeSpacesBundle(backup.spaces);
 }
 
 export function restoreSnapshot(snap: Snapshot) {
@@ -228,6 +233,7 @@ export function restoreSnapshot(snap: Snapshot) {
   if (snap.utility !== null) window.localStorage.setItem(UTILITY_KEY, JSON.stringify(snap.utility));
   if (snap.hub) window.localStorage.setItem(HUB_KEY, JSON.stringify(snap.hub));
   if (snap.board) window.localStorage.setItem(BOARD_KEY, JSON.stringify(snap.board));
+  if (snap.spaces) writeSpacesBundle(snap.spaces);
 }
 
 export function lastBackupAt(): string | null {

@@ -12,6 +12,7 @@ export function facetVars(facet: Facet, ambient: number): CSSProperties {
     ["--per-img" as string]: grad(135, facet.perimeter),
     ["--title-a" as string]: text ? text.a : "oklch(0.98 0.01 260)",
     ["--title-b" as string]: text ? text.b : facet.perimeter.b,
+    ...(text?.stops && text.stops.length >= 3 ? { ["--title-img" as string]: grad(100, text) } : {}),
     ["--body-a" as string]: facet.body.a,
     ["--body-b" as string]: facet.body.b,
     ["--per-a" as string]: facet.perimeter.a,
