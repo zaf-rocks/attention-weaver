@@ -23,6 +23,7 @@ import { HubWorkspace } from "@/components/noteworthy/HubWorkspace";
 import { BoardBar } from "@/components/noteworthy/BoardBar";
 import { BoardWorkspace } from "@/components/noteworthy/BoardWorkspace";
 import { UtilityStage } from "@/components/noteworthy/UtilityStage";
+import { SpaceSwitcher } from "@/components/noteworthy/SpaceSwitcher";
 import { FieldControls } from "@/components/noteworthy/FieldControls";
 import { rectOf, type Rect } from "@/lib/noteworthy/transform";
 import { cn } from "@/lib/utils";
@@ -51,8 +52,10 @@ export const Route = createFileRoute("/")({
 type UtilId = "UTIL_TOP" | "UTIL_BOTTOM";
 
 function Field() {
-  const { state, savedAt, updateFacet, touchFacet, updateSettings, reset, reloadFromStorage } =
-    useNoteworthy();
+  const {
+    state, savedAt, updateFacet, touchFacet, updateSettings, reset, reloadFromStorage,
+    spaces, switchSpace, createSpace, renameSpace, deleteSpace,
+  } = useNoteworthy();
   const hubApi = useHub();
   const boardApi = useBoard();
   const [selected, setSelected] = useState<{ id: SlotId; rect: Rect } | null>(null);
@@ -133,6 +136,17 @@ function Field() {
               hidden={util?.id === "UTIL_TOP"}
             />
           </div>
+          <SpaceSwitcher
+            spaces={spaces}
+            onSwitch={(id) => {
+              setSelected(null);
+              setUtil(null);
+              switchSpace(id);
+            }}
+            onCreate={createSpace}
+            onRename={renameSpace}
+            onDelete={deleteSpace}
+          />
           <button
             type="button"
             onClick={() => setControls(true)}
