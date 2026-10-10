@@ -53,7 +53,7 @@ type UtilId = "UTIL_TOP" | "UTIL_BOTTOM";
 
 function Field() {
   const {
-    state, savedAt, updateFacet, touchFacet, updateSettings, reset, reloadFromStorage,
+    state, savedAt, updateFacet, swapFacets, touchFacet, updateSettings, reset, reloadFromStorage,
     spaces, switchSpace, createSpace, renameSpace, deleteSpace,
   } = useNoteworthy();
   const hubApi = useHub();
@@ -236,6 +236,13 @@ function Field() {
           sourceRect={selected.rect}
           onPatch={(patch) => updateFacet(selected.id, patch)}
           onClose={() => setSelected(null)}
+          others={(Object.keys(f) as SlotId[])
+            .filter((id) => id !== selected.id && !f[id].utility)
+            .map((id) => ({ id, title: f[id].title, positionName: f[id].positionName }))}
+          onSwap={(target) => {
+            swapFacets(selected.id, target);
+            setSelected(null);
+          }}
         />
       )}
 

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { Facet, FieldSettings } from "@/lib/noteworthy/types";
+import type { Facet, FieldSettings, SlotId } from "@/lib/noteworthy/types";
 import { facetVars } from "./FacetSurface";
 import { FacetFront } from "./FacetFront";
 import { InformationFace } from "./InformationFace";
@@ -24,12 +24,16 @@ export function FacetOverlay({
   sourceRect,
   onPatch,
   onClose,
+  others,
+  onSwap,
 }: {
   facet: Facet;
   settings: FieldSettings;
   sourceRect: Rect;
   onPatch: (patch: Partial<Facet>) => void;
   onClose: () => void;
+  others?: { id: SlotId; title: string; positionName: string }[];
+  onSwap?: (target: SlotId) => void;
 }) {
   const reduced = settings.reducedMotion;
   const [mode, setMode] = useState<Mode>("info");
@@ -191,6 +195,8 @@ export function FacetOverlay({
                   onPatch={onPatch}
                   onClose={close}
                   onCustomize={() => toMode("customize")}
+                  others={others}
+                  onSwap={onSwap}
                 />
               </div>
             </div>
