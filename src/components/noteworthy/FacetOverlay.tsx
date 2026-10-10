@@ -32,8 +32,8 @@ export function FacetOverlay({
   sourceRect: Rect;
   onPatch: (patch: Partial<Facet>) => void;
   onClose: () => void;
-  others?: { id: SlotId; title: string; positionName: string }[];
-  onSwap?: (target: SlotId) => void;
+  others?: { id: SlotId; title: string; positionName: string }[] | undefined;
+  onSwap?: ((target: SlotId) => void) | undefined;
 }) {
   const reduced = settings.reducedMotion;
   const [mode, setMode] = useState<Mode>("info");
