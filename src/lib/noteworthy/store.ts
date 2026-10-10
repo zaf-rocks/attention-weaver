@@ -89,6 +89,26 @@ export function useNoteworthy() {
     setState((s) => ({ ...s, facets: { ...s.facets, [id]: { ...s.facets[id], ...patch } } }));
   }, []);
 
+  /**
+   * Trade the full content of two primary facets. Identity (slot id, utility
+   * flag, position name) stays put — only the user's content moves. A
+   * recovery snapshot is taken first so the trade can be undone.
+   */
+  const swapFacets = useCallback((a: SlotId, b: SlotId) => {
+    if (a === b) return;
+    takeSnapshot("before trading facets");
+    setState((s) => {
+      const fa = s.facets[a];
+      const fb = s.facets[b];
+      if (!fa || !fb || fa.utility || fb.utility) return s;
+      const keep = (f: Facet) => ({ id: f.id, utility: f.utility, positionName: f.positionName });
+      return {
+        ...s,
+        facets: { ...s.facets, [a]: { ...fb, ...keep(fa) }, [b]: { ...fa, ...keep(fb) } },
+      };
+    });
+  }, []);
+
   const touchFacet = useCallback((id: SlotId) => {
     setState((s) => ({
       ...s,
@@ -116,6 +136,7 @@ export function useNoteworthy() {
     state,
     savedAt,
     updateFacet,
+    swapFacets,
     touchFacet,
     updateSettings,
     reset,
