@@ -240,14 +240,20 @@ export function useHub() {
     setHub((s) => ({ ...s, quick: { text, savedAt: now() } }));
   }, []);
 
-  /** Submit the quick field: next numbered entry in Tab A, then clear the draft. */
+  /**
+   * Submit the quick field. A trailing hashtag routes the entry: "#c" files
+   * into Tab C, "#A1"-style codes are left alone (they are lookups, not
+   * routing). No tag → Tab A. The tag is stripped from the stored text.
+   */
   const commitQuick = useCallback((text: string) => {
-    const trimmed = text.trim();
+    const m = /#([a-kA-K])\s*$/.exec(text.trim());
+    const letter = (m ? m[1]!.toUpperCase() : "A") as HubLetter;
+    const trimmed = (m ? text.trim().slice(0, m.index) : text).trim();
     if (!trimmed) return null;
     const stamp = now();
     const entry: HubEntry = {
       id: uid("entry"),
-      letter: "A",
+      letter,
       title: trimmed.split("\n")[0]!.slice(0, 60),
       body: trimmed,
       pinned: false,
