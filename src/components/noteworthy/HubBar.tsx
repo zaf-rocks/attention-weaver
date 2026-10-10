@@ -58,6 +58,14 @@ export function HubBar({
 
   const entries = hub.entries.length;
 
+  // Live destination hint: a trailing #a-#k routes the capture to that tab.
+  const routeHint = useMemo(() => {
+    const m = /#([a-kA-K])\s*$/.exec(text);
+    if (!m) return null;
+    const letter = m[1]!.toUpperCase() as HubLetter;
+    return hub.tabs.find((t) => t.letter === letter) ?? null;
+  }, [text, hub.tabs]);
+
   // A1-style code lookup: only fires when the text contains a valid code as a
   // standalone token — ordinary prose is never hijacked.
   const lookup = useMemo(() => {
@@ -133,13 +141,27 @@ export function HubBar({
                   </div>
                 )}
               </div>
-              <span
-                aria-live="polite"
-                className="shrink-0 text-[8px] tracking-widest text-muted-foreground uppercase"
-              >
-                {status === "saving" ? "saving" : status === "saved" ? "saved" : ""}
-              </span>
-              <BarAction label="Save to Tab A" glyph="⏎" testId="nw-hub-quick-save" />
+              {routeHint ? (
+                <span
+                  data-testid="nw-hub-route-hint"
+                  className="shrink-0 rounded px-1 py-0.5 text-[8px] font-semibold tracking-widest uppercase"
+                  style={{ background: `${routeHint.color}26`, color: routeHint.color }}
+                >
+                  → {routeHint.letter}
+                </span>
+              ) : (
+                <span
+                  aria-live="polite"
+                  className="shrink-0 text-[8px] tracking-widest text-muted-foreground uppercase"
+                >
+                  {status === "saving" ? "saving" : status === "saved" ? "saved" : ""}
+                </span>
+              )}
+              <BarAction
+                label={`Save to Tab ${routeHint?.letter ?? "A"}`}
+                glyph="⏎"
+                testId="nw-hub-quick-save"
+              />
             </form>
           ) : (
             <button

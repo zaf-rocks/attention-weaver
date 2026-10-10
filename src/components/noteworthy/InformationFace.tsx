@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Facet, Reminder, Task } from "@/lib/noteworthy/types";
+import type { Facet, Reminder, SlotId, Task } from "@/lib/noteworthy/types";
 
 const uid = () => Math.random().toString(36).slice(2, 9);
 
@@ -27,11 +27,16 @@ export function InformationFace({
   onPatch,
   onClose,
   onCustomize,
+  others,
+  onSwap,
 }: {
   facet: Facet;
   onPatch: (patch: Partial<Facet>) => void;
   onClose: () => void;
   onCustomize: () => void;
+  /** The other 14 primary facets, for the trade-places control. */
+  others?: { id: SlotId; title: string; positionName: string }[];
+  onSwap?: (target: SlotId) => void;
 }) {
   const [newTask, setNewTask] = useState("");
 
@@ -258,6 +263,37 @@ export function InformationFace({
           />
           Facet complete
         </label>
+
+        {/* Trade places: swap this facet's full content with another primary facet. */}
+        {others && onSwap && others.length > 0 && (
+          <div>
+            <span className="nw-label">Trade places with…</span>
+            <select
+              className="nw-input mt-1"
+              value=""
+              aria-label="Trade this facet's content with another facet"
+              data-testid="nw-swap-select"
+              onChange={(e) => {
+                const target = e.target.value as SlotId;
+                if (!target) return;
+                onSwap(target);
+              }}
+            >
+              <option value="" disabled>
+                Choose a facet — everything trades over
+              </option>
+              {others.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.title} — {o.positionName}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1 text-[10px] text-muted-foreground">
+              Titles, tasks, notes, dates and colors all move; the two positions stay put. A
+              recovery snapshot is taken first.
+            </p>
+          </div>
+        )}
       </div>
 
       <footer className="flex gap-2 border-t border-border/60 px-3 py-2">

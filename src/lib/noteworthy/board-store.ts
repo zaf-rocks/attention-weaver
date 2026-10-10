@@ -244,20 +244,30 @@ export function useBoard() {
     setBoard((s) => ({ ...s, quick: { text, savedAt: now() } }));
   }, []);
 
-  /** Submit the lower quick field into the designated Save for Later note. */
+  /**
+   * Submit the lower quick field. A trailing "#n3"-style hashtag routes the
+   * thought onto the 3rd visible Post-it (1-based, in board order); no tag →
+   * the designated Save for Later note. The tag is stripped from the text.
+   */
   const commitQuick = useCallback((text: string) => {
-    const trimmed = text.trim();
+    const m = /#n([1-9]|1[0-2])\s*$/i.exec(text.trim());
+    const trimmed = (m ? text.trim().slice(0, m.index) : text).trim();
     if (!trimmed) return;
-    setBoard((s) => ({
-      ...s,
-      notes: s.notes.map((n) => {
-        if (n.id !== s.saveForLaterId) return n;
-        return n.mode === "list"
-          ? { ...n, rows: [...n.rows, { id: uid("row"), text: trimmed, done: false }], updatedAt: now() }
-          : { ...n, body: n.body ? `${n.body}\n${trimmed}` : trimmed, updatedAt: now() };
-      }),
-      quick: { text: "", savedAt: now() },
-    }));
+    setBoard((s) => {
+      const visible = s.notes.filter((n) => !n.archived);
+      const target = m ? visible[Number(m[1]) - 1] : undefined;
+      const targetId = target?.id ?? s.saveForLaterId;
+      return {
+        ...s,
+        notes: s.notes.map((n) => {
+          if (n.id !== targetId) return n;
+          return n.mode === "list"
+            ? { ...n, rows: [...n.rows, { id: uid("row"), text: trimmed, done: false }], updatedAt: now() }
+            : { ...n, body: n.body ? `${n.body}\n${trimmed}` : trimmed, updatedAt: now() };
+        }),
+        quick: { text: "", savedAt: now() },
+      };
+    });
   }, []);
 
   return {
