@@ -56,6 +56,14 @@ export function BoardBar({
 
   const target = board.notes.find((n) => n.id === board.saveForLaterId);
 
+  // Live destination hint: a trailing #n1-#n12 routes onto that Post-it.
+  const routeTarget = (() => {
+    const m = /#n([1-9]|1[0-2])\s*$/i.exec(text);
+    if (!m) return null;
+    return board.notes.filter((n) => !n.archived)[Number(m[1]) - 1] ?? null;
+  })();
+  const destination = routeTarget ?? target;
+
   return (
     <div
       ref={wrap}
@@ -93,13 +101,27 @@ export function BoardBar({
                 onKeyDown={(e) => e.key === "Escape" && setCapturing(false)}
                 className="min-w-0 flex-1 bg-transparent text-[11px] text-foreground placeholder:text-muted-foreground/70 focus:outline-none"
               />
-              <span
-                aria-live="polite"
-                className="shrink-0 text-[8px] tracking-widest text-muted-foreground uppercase"
-              >
-                {status === "saving" ? "saving" : status === "saved" ? "saved" : ""}
-              </span>
-              <BarAction label="Save to note" glyph="⏎" testId="nw-board-quick-save" />
+              {routeTarget ? (
+                <span
+                  data-testid="nw-board-route-hint"
+                  className="shrink-0 rounded px-1 py-0.5 text-[8px] font-semibold tracking-widest uppercase"
+                  style={{ background: `${routeTarget.color}33`, color: routeTarget.color }}
+                >
+                  → {routeTarget.title}
+                </span>
+              ) : (
+                <span
+                  aria-live="polite"
+                  className="shrink-0 text-[8px] tracking-widest text-muted-foreground uppercase"
+                >
+                  {status === "saving" ? "saving" : status === "saved" ? "saved" : ""}
+                </span>
+              )}
+              <BarAction
+                label={`Save to ${destination?.title ?? "note"}`}
+                glyph="⏎"
+                testId="nw-board-quick-save"
+              />
             </form>
           ) : (
             <button
