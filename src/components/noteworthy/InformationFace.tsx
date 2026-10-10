@@ -35,8 +35,8 @@ export function InformationFace({
   onClose: () => void;
   onCustomize: () => void;
   /** The other 14 primary facets, for the trade-places control. */
-  others?: { id: SlotId; title: string; positionName: string }[];
-  onSwap?: (target: SlotId) => void;
+  others?: { id: SlotId; title: string; positionName: string }[] | undefined;
+  onSwap?: ((target: SlotId) => void) | undefined;
 }) {
   const [newTask, setNewTask] = useState("");
 
